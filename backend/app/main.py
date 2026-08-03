@@ -2,15 +2,19 @@
 
 from fastapi import FastAPI
 
+from app.core.config import Settings, get_settings
 
-def create_app() -> FastAPI:
+
+def create_app(settings: Settings) -> FastAPI:
     """Create and configure the FastAPI application."""
     application = FastAPI(
-        title="Financial Complaint Routing System API",
+        title=settings.app_name,
         description=(
             "Supports financial complaint routing, AI predictions, and human review."
         ),
+        debug=settings.debug,
     )
+    application.state.settings = settings
 
     @application.get("/health")
     async def health() -> dict[str, str]:
@@ -19,4 +23,4 @@ def create_app() -> FastAPI:
     return application
 
 
-app = create_app()
+app = create_app(get_settings())

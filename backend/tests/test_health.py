@@ -3,7 +3,8 @@
 import httpx
 import pytest
 
-from app.main import app
+from app.core.config import Settings
+from app.main import create_app
 
 
 @pytest.fixture
@@ -13,6 +14,7 @@ def anyio_backend() -> str:
 
 @pytest.mark.anyio
 async def test_health() -> None:
+    app = create_app(Settings())
     transport = httpx.ASGITransport(app=app)
 
     async with httpx.AsyncClient(
