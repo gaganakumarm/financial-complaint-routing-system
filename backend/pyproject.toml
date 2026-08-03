@@ -9,6 +9,7 @@ description = "Backend foundation for financial complaint routing and human revi
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.14,<2",
     "asyncpg>=0.30,<1",
     "fastapi",
     "pydantic-settings",
