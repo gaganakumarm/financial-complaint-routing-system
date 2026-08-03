@@ -6,11 +6,13 @@ build-backend = "setuptools.build_meta"
 name = "financial-complaint-routing-backend"
 version = "0.1.0"
 description = "Backend foundation for financial complaint routing and human review."
-readme = "../README.md"
+readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "asyncpg>=0.30,<1",
     "fastapi",
     "pydantic-settings",
+    "SQLAlchemy>=2,<3",
     "uvicorn",
 ]
 
@@ -19,6 +21,10 @@ test = [
     "httpx",
     "pytest",
 ]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
