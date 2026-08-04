@@ -23,3 +23,10 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
     """Yield a database session and always close it after use."""
     async with get_session_factory()() as session:
         yield session
+
+
+async def get_transactional_session() -> AsyncGenerator[AsyncSession, None]:
+    """Yield a session inside one request-owned transaction."""
+    async with get_session_factory()() as session:
+        async with session.begin():
+            yield session

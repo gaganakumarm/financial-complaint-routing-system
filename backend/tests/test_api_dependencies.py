@@ -17,10 +17,16 @@ from app.api import (
     CurrentActiveUser,
     CurrentUser,
     DatabaseSession,
+    TransactionalAuthServiceDependency,
+    TransactionalDatabaseSession,
+    TransactionalUserRepositoryDependency,
     UserRepositoryDependency,
     get_auth_service,
     get_current_active_user,
     get_current_user,
+    get_transactional_auth_service,
+    get_transactional_session,
+    get_transactional_user_repository,
     get_user_repository,
     oauth2_scheme,
 )
@@ -45,12 +51,18 @@ EXPECTED_EXPORTS = {
     "CurrentUser",
     "CustomerUser",
     "DatabaseSession",
+    "TransactionalAuthServiceDependency",
+    "TransactionalDatabaseSession",
+    "TransactionalUserRepositoryDependency",
     "UserRepositoryDependency",
     "ReviewerOrAdministratorUser",
     "ReviewerUser",
     "get_auth_service",
     "get_current_active_user",
     "get_current_user",
+    "get_transactional_auth_service",
+    "get_transactional_session",
+    "get_transactional_user_repository",
     "get_user_repository",
     "oauth2_scheme",
     "auth_router",
@@ -76,11 +88,17 @@ def test_approved_imports_and_exact_exports() -> None:
         CurrentActiveUser,
         CurrentUser,
         DatabaseSession,
+        TransactionalAuthServiceDependency,
+        TransactionalDatabaseSession,
+        TransactionalUserRepositoryDependency,
         UserRepositoryDependency,
     }
     assert callable(get_auth_service)
     assert callable(get_current_active_user)
     assert callable(get_current_user)
+    assert callable(get_transactional_auth_service)
+    assert callable(get_transactional_session)
+    assert callable(get_transactional_user_repository)
     assert callable(get_user_repository)
     assert set(api.__all__) == EXPECTED_EXPORTS
 

@@ -2,7 +2,11 @@
 
 from fastapi import APIRouter, HTTPException, status
 
-from app.api.dependencies import AuthServiceDependency, CurrentActiveUser
+from app.api.dependencies import (
+    AuthServiceDependency,
+    CurrentActiveUser,
+    TransactionalAuthServiceDependency,
+)
 from app.schemas import (
     ErrorResponse,
     LoginRequest,
@@ -32,7 +36,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 )
 async def register_user(
     payload: RegisterRequest,
-    auth_service: AuthServiceDependency,
+    auth_service: TransactionalAuthServiceDependency,
 ) -> RegistrationResponse:
     try:
         user = await auth_service.register_user(

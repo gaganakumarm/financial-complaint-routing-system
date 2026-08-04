@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.session import get_db_session
+from app.db.session import get_db_session, get_transactional_session
 from app.models import User
 from app.repositories import UserRepository
 from app.services import (
@@ -27,6 +27,13 @@ async def get_user_repository(
     return UserRepository(session)
 
 
+async def get_transactional_user_repository(
+    session: Annotated[AsyncSession, Depends(get_transactional_session)],
+) -> UserRepository:
+    """Construct a user repository around the request transaction session."""
+    return UserRepository(session)
+
+
 def get_auth_service(
     user_repository: Annotated[
         UserRepository,
@@ -34,6 +41,16 @@ def get_auth_service(
     ],
 ) -> AuthService:
     """Construct an authentication service around the injected repository."""
+    return AuthService(user_repository)
+
+
+def get_transactional_auth_service(
+    user_repository: Annotated[
+        UserRepository,
+        Depends(get_transactional_user_repository),
+    ],
+) -> AuthService:
+    """Construct an authentication service inside the request transaction."""
     return AuthService(user_repository)
 
 
@@ -64,6 +81,10 @@ async def get_current_active_user(
 
 
 DatabaseSession = Annotated[AsyncSession, Depends(get_db_session)]
+TransactionalDatabaseSession = Annotated[
+    AsyncSession,
+    Depends(get_transactional_session),
+]
 UserRepositoryDependency = Annotated[
     UserRepository,
     Depends(get_user_repository),
@@ -71,6 +92,14 @@ UserRepositoryDependency = Annotated[
 AuthServiceDependency = Annotated[
     AuthService,
     Depends(get_auth_service),
+]
+TransactionalUserRepositoryDependency = Annotated[
+    UserRepository,
+    Depends(get_transactional_user_repository),
+]
+TransactionalAuthServiceDependency = Annotated[
+    AuthService,
+    Depends(get_transactional_auth_service),
 ]
 AccessToken = Annotated[str, Depends(oauth2_scheme)]
 CurrentUser = Annotated[User, Depends(get_current_user)]

@@ -6,13 +6,19 @@ from app.api.dependencies import (
     CurrentActiveUser,
     CurrentUser,
     DatabaseSession,
+    TransactionalAuthServiceDependency,
+    TransactionalDatabaseSession,
+    TransactionalUserRepositoryDependency,
     UserRepositoryDependency,
     get_auth_service,
     get_current_active_user,
     get_current_user,
+    get_transactional_auth_service,
+    get_transactional_user_repository,
     get_user_repository,
     oauth2_scheme,
 )
+from app.db.session import get_transactional_session
 from app.api.routes import auth_router
 
 
@@ -37,10 +43,16 @@ __all__ = [
     "CurrentActiveUser",
     "CurrentUser",
     "DatabaseSession",
+    "TransactionalAuthServiceDependency",
+    "TransactionalDatabaseSession",
+    "TransactionalUserRepositoryDependency",
     "UserRepositoryDependency",
     "get_auth_service",
     "get_current_active_user",
     "get_current_user",
+    "get_transactional_auth_service",
+    "get_transactional_session",
+    "get_transactional_user_repository",
     "get_user_repository",
     "oauth2_scheme",
     "auth_router",

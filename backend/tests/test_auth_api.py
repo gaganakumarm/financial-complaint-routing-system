@@ -10,7 +10,11 @@ import httpx
 from pydantic import ValidationError
 import pytest
 
-from app.api import get_auth_service, get_current_active_user
+from app.api import (
+    get_auth_service,
+    get_current_active_user,
+    get_transactional_auth_service,
+)
 from app.api.routes import auth_router
 from app.api.routes.auth import login, register_user
 from app.core.config import Settings
@@ -71,6 +75,7 @@ def _mock_service() -> MagicMock:
 def _app_with_service(service: MagicMock):
     application = create_app(Settings())
     application.dependency_overrides[get_auth_service] = lambda: service
+    application.dependency_overrides[get_transactional_auth_service] = lambda: service
     return application
 
 
