@@ -118,6 +118,7 @@ def test_user_schema() -> None:
     }
     assert "password" not in table.c
     assert "reviews_performed" not in table.c
+    assert "benchmark_results" not in table.c
     assert not hasattr(User, "password")
 
 

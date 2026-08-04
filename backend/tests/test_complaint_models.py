@@ -29,6 +29,9 @@ EXPECTED_TABLES = {
     "model_versions",
     "predictions",
     "reviews",
+    "dataset_versions",
+    "benchmark_experiments",
+    "benchmark_results",
 }
 
 

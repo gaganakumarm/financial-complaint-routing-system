@@ -24,6 +24,7 @@ from app.db.base import Base
 from app.db.mixins import UUIDPrimaryKeyMixin, utc_now
 
 if TYPE_CHECKING:
+    from app.models.benchmark_result import BenchmarkResult
     from app.models.prediction import Prediction
 
 
@@ -114,5 +115,8 @@ class ModelVersion(UUIDPrimaryKeyMixin, Base):
     )
 
     predictions: Mapped[list[Prediction]] = relationship(
+        back_populates="model_version"
+    )
+    benchmark_results: Mapped[list[BenchmarkResult]] = relationship(
         back_populates="model_version"
     )
