@@ -37,6 +37,17 @@ class Settings(BaseSettings):
         ),
         validation_alias="DATABASE_URL",
     )
+    jwt_secret_key: str = Field(
+        default="development-only-change-me-please-replace",
+        validation_alias="JWT_SECRET_KEY",
+    )
+    jwt_algorithm: str = Field(default="HS256", validation_alias="JWT_ALGORITHM")
+    access_token_expire_minutes: int = Field(
+        default=30,
+        ge=1,
+        le=1440,
+        validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES",
+    )
 
     @field_validator("app_name")
     @classmethod
@@ -62,6 +73,24 @@ class Settings(BaseSettings):
             raise ValueError("database URL cannot be empty")
         if not normalized_value.startswith("postgresql+asyncpg://"):
             raise ValueError('database URL must start with "postgresql+asyncpg://"')
+        return normalized_value
+
+    @field_validator("jwt_secret_key")
+    @classmethod
+    def validate_jwt_secret_key(cls, value: str) -> str:
+        normalized_value = value.strip()
+        if not normalized_value:
+            raise ValueError("JWT secret key cannot be blank")
+        if len(normalized_value) < 32:
+            raise ValueError("JWT secret key must contain at least 32 characters")
+        return normalized_value
+
+    @field_validator("jwt_algorithm")
+    @classmethod
+    def validate_jwt_algorithm(cls, value: str) -> str:
+        normalized_value = value.strip()
+        if normalized_value != "HS256":
+            raise ValueError("JWT algorithm must be HS256")
         return normalized_value
 
 
