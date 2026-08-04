@@ -14,6 +14,7 @@ from sqlalchemy import DateTime
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
 
+import app.models
 from app.core.config import Settings
 from app.db.base import Base
 from app.db import engine as engine_module
@@ -132,6 +133,14 @@ async def test_session_dependency_yields_and_closes_without_connecting() -> None
 
 def test_declarative_base_has_metadata() -> None:
     assert Base.metadata is not None
+    assert set(Base.metadata.tables) == {
+        "roles",
+        "users",
+        "complaint_categories",
+        "departments",
+        "complaints",
+        "complaint_status_history",
+    }
 
 
 def test_uuid_and_timestamp_mixins() -> None:

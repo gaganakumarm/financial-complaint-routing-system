@@ -36,23 +36,31 @@ def test_alembic_dependency_and_file_structure() -> None:
     assert (SCRIPT_DIRECTORY / "versions").is_dir()
 
 
-def test_alembic_config_and_single_revision() -> None:
+def test_alembic_config_and_linear_revision_chain() -> None:
     config = make_alembic_config()
     script = ScriptDirectory.from_config(config)
     revisions = list(script.walk_revisions())
 
     assert config.get_main_option("script_location") == "alembic"
-    assert len(revisions) == 1
-    assert revisions[0].revision == "20260803_01"
-    assert revisions[0].down_revision is None
-    assert "roles and users" in revisions[0].doc.lower()
-    assert script.get_heads() == ["20260803_01"]
+    assert len(revisions) == 2
+    assert [(item.revision, item.down_revision) for item in revisions] == [
+        ("20260804_02", "20260803_01"),
+        ("20260803_01", None),
+    ]
+    assert script.get_heads() == ["20260804_02"]
     assert script.get_bases() == ["20260803_01"]
 
 
-def test_migration_metadata_contains_identity_tables() -> None:
+def test_migration_metadata_contains_approved_tables() -> None:
     assert Base.metadata is not None
-    assert set(Base.metadata.tables) == {"roles", "users"}
+    assert set(Base.metadata.tables) == {
+        "roles",
+        "users",
+        "complaint_categories",
+        "departments",
+        "complaints",
+        "complaint_status_history",
+    }
 
 
 def test_committed_config_contains_no_database_credentials() -> None:

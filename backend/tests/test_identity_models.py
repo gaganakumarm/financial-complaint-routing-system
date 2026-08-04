@@ -34,8 +34,9 @@ USER_COLUMNS = {
 }
 
 
-def test_identity_metadata_contains_only_roles_and_users() -> None:
-    assert set(Base.metadata.tables) == {"roles", "users"}
+def test_identity_models_register_their_expected_tables() -> None:
+    assert Role.__table__ is Base.metadata.tables["roles"]
+    assert User.__table__ is Base.metadata.tables["users"]
 
 
 def test_role_schema() -> None:

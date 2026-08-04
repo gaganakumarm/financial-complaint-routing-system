@@ -24,6 +24,8 @@ from app.db.base import Base
 from app.db.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from app.models.complaint import Complaint
+    from app.models.complaint_status_history import ComplaintStatusHistory
     from app.models.role import Role
 
 
@@ -76,3 +78,11 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
 
     role: Mapped[Role] = relationship(back_populates="users")
+    submitted_complaints: Mapped[list[Complaint]] = relationship(
+        back_populates="customer",
+        foreign_keys="Complaint.customer_id",
+    )
+    complaint_status_changes: Mapped[list[ComplaintStatusHistory]] = relationship(
+        back_populates="changed_by_user",
+        foreign_keys="ComplaintStatusHistory.changed_by_user_id",
+    )
