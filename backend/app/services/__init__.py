@@ -19,6 +19,16 @@ from app.services.complaint import (
     InvalidComplaintRoutingError,
     InvalidComplaintStatusTransitionError,
 )
+from app.services.prediction import (
+    ActiveModelVersionNotFoundError,
+    DuplicatePredictionError,
+    InvalidPredictionOutputError,
+    PredictionExecutionError,
+    PredictionNotAllowedError,
+    PredictionNotFoundError,
+    PredictionService,
+    PredictionServiceError,
+)
 
 __all__ = [
     "AuthenticationError",
@@ -36,4 +46,12 @@ __all__ = [
     "InvalidComplaintDataError",
     "InvalidComplaintRoutingError",
     "InvalidComplaintStatusTransitionError",
+    "ActiveModelVersionNotFoundError",
+    "DuplicatePredictionError",
+    "InvalidPredictionOutputError",
+    "PredictionExecutionError",
+    "PredictionNotAllowedError",
+    "PredictionNotFoundError",
+    "PredictionService",
+    "PredictionServiceError",
 ]

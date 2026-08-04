@@ -111,10 +111,22 @@ def test_service_imports_exports_and_resource_isolation() -> None:
         "InvalidComplaintRoutingError",
         "InvalidComplaintStatusTransitionError",
     }
+    expected_prediction_exports = {
+        "ActiveModelVersionNotFoundError",
+        "DuplicatePredictionError",
+        "InvalidPredictionOutputError",
+        "PredictionExecutionError",
+        "PredictionNotAllowedError",
+        "PredictionNotFoundError",
+        "PredictionService",
+        "PredictionServiceError",
+    }
     engine_cache_before = get_engine.cache_info()
     session_cache_before = get_session_factory.cache_info()
 
-    assert set(services.__all__) == expected_auth_exports | expected_complaint_exports
+    assert set(services.__all__) == (
+        expected_auth_exports | expected_complaint_exports | expected_prediction_exports
+    )
     assert issubclass(ComplaintServiceError, Exception)
     assert issubclass(AuthenticationError, Exception)
     assert get_engine.cache_info() == engine_cache_before
