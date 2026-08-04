@@ -7,6 +7,8 @@ from app.models.complaint_status_history import (
     ComplaintStatusHistory,
 )
 from app.models.department import Department
+from app.models.model_version import ModelType, ModelVersion
+from app.models.prediction import Prediction
 from app.models.role import Role
 from app.models.user import User
 
@@ -18,6 +20,9 @@ __all__ = [
     "ComplaintStatusHistory",
     "ComplaintUrgency",
     "Department",
+    "ModelType",
+    "ModelVersion",
+    "Prediction",
     "Role",
     "User",
 ]

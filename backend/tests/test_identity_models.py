@@ -35,6 +35,7 @@ USER_COLUMNS = {
 
 
 def test_identity_models_register_their_expected_tables() -> None:
+    assert {Role.__table__.name, User.__table__.name} == {"roles", "users"}
     assert Role.__table__ is Base.metadata.tables["roles"]
     assert User.__table__ is Base.metadata.tables["users"]
 

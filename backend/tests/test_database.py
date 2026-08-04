@@ -140,6 +140,8 @@ def test_declarative_base_has_metadata() -> None:
         "departments",
         "complaints",
         "complaint_status_history",
+        "model_versions",
+        "predictions",
     }
 
 
