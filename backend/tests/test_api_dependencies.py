@@ -38,12 +38,16 @@ from app.services import (
 
 
 EXPECTED_EXPORTS = {
+    "AdministratorUser",
     "AccessToken",
     "AuthServiceDependency",
     "CurrentActiveUser",
     "CurrentUser",
+    "CustomerUser",
     "DatabaseSession",
     "UserRepositoryDependency",
+    "ReviewerOrAdministratorUser",
+    "ReviewerUser",
     "get_auth_service",
     "get_current_active_user",
     "get_current_user",

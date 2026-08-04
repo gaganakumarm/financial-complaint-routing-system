@@ -15,6 +15,22 @@ from app.api.dependencies import (
 )
 from app.api.routes import auth_router
 
+
+_AUTHORIZATION_EXPORTS = {
+    "AdministratorUser",
+    "CustomerUser",
+    "ReviewerOrAdministratorUser",
+    "ReviewerUser",
+}
+
+
+def __getattr__(name: str):
+    if name in _AUTHORIZATION_EXPORTS:
+        from app import authz
+
+        return getattr(authz, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 __all__ = [
     "AccessToken",
     "AuthServiceDependency",
@@ -28,4 +44,8 @@ __all__ = [
     "get_user_repository",
     "oauth2_scheme",
     "auth_router",
+    "AdministratorUser",
+    "CustomerUser",
+    "ReviewerOrAdministratorUser",
+    "ReviewerUser",
 ]
