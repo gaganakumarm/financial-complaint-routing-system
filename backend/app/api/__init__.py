@@ -13,6 +13,7 @@ from app.api.dependencies import (
     get_user_repository,
     oauth2_scheme,
 )
+from app.api.routes import auth_router
 
 __all__ = [
     "AccessToken",
@@ -26,4 +27,5 @@ __all__ = [
     "get_current_user",
     "get_user_repository",
     "oauth2_scheme",
+    "auth_router",
 ]

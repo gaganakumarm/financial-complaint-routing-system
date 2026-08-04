@@ -49,6 +49,7 @@ EXPECTED_EXPORTS = {
     "get_current_user",
     "get_user_repository",
     "oauth2_scheme",
+    "auth_router",
 }
 
 
@@ -293,19 +294,14 @@ async def test_temporary_route_converts_service_failure_to_generic_401() -> None
 def test_import_has_no_resource_construction_or_production_routes() -> None:
     engine_cache_before = get_engine.cache_info()
     session_cache_before = get_session_factory.cache_info()
-    routes_before = {route.path for route in production_app.routes}
+    routes_before = set(production_app.openapi()["paths"])
 
     import app.api.dependencies as dependencies
 
     importlib.reload(dependencies)
     assert get_engine.cache_info() == engine_cache_before
     assert get_session_factory.cache_info() == session_cache_before
-    assert {route.path for route in production_app.routes} == routes_before
-    assert not {
-        "/api/auth/login",
-        "/api/auth/register",
-        "/api/auth/me",
-    }.intersection(routes_before)
+    assert set(production_app.openapi()["paths"]) == routes_before
     assert not any(
         isinstance(value, (UserRepository, AuthService))
         for value in vars(dependencies).values()
