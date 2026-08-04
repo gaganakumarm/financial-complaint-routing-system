@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from app.models.complaint import Complaint
     from app.models.complaint_status_history import ComplaintStatusHistory
     from app.models.role import Role
+    from app.models.review import Review
 
 
 class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -86,3 +87,4 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         back_populates="changed_by_user",
         foreign_keys="ComplaintStatusHistory.changed_by_user_id",
     )
+    reviews_performed: Mapped[list[Review]] = relationship(back_populates="reviewer")

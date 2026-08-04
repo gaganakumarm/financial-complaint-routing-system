@@ -117,6 +117,7 @@ def test_user_schema() -> None:
         "ck_users_full_name_not_blank",
     }
     assert "password" not in table.c
+    assert "reviews_performed" not in table.c
     assert not hasattr(User, "password")
 
 

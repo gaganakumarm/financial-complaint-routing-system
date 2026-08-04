@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from app.models.complaint_status_history import ComplaintStatusHistory
     from app.models.department import Department
     from app.models.prediction import Prediction
+    from app.models.review import Review
     from app.models.user import User
 
 
@@ -165,3 +166,4 @@ class Complaint(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         back_populates="complaint"
     )
     predictions: Mapped[list[Prediction]] = relationship(back_populates="complaint")
+    reviews: Mapped[list[Review]] = relationship(back_populates="complaint")

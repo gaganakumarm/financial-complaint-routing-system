@@ -42,13 +42,14 @@ def test_alembic_config_and_linear_revision_chain() -> None:
     revisions = list(script.walk_revisions())
 
     assert config.get_main_option("script_location") == "alembic"
-    assert len(revisions) == 3
+    assert len(revisions) == 4
     assert [(item.revision, item.down_revision) for item in revisions] == [
+        ("20260804_04", "20260804_03"),
         ("20260804_03", "20260804_02"),
         ("20260804_02", "20260803_01"),
         ("20260803_01", None),
     ]
-    assert script.get_heads() == ["20260804_03"]
+    assert script.get_heads() == ["20260804_04"]
     assert script.get_bases() == ["20260803_01"]
 
 
@@ -63,6 +64,7 @@ def test_migration_metadata_contains_approved_tables() -> None:
         "complaint_status_history",
         "model_versions",
         "predictions",
+        "reviews",
     }
 
 

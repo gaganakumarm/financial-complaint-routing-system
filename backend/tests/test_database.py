@@ -142,6 +142,7 @@ def test_declarative_base_has_metadata() -> None:
         "complaint_status_history",
         "model_versions",
         "predictions",
+        "reviews",
     }
 
 

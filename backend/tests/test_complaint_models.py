@@ -28,6 +28,7 @@ EXPECTED_TABLES = {
     "complaint_status_history",
     "model_versions",
     "predictions",
+    "reviews",
 }
 
 

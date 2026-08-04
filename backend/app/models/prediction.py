@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from app.models.complaint_category import ComplaintCategory
     from app.models.department import Department
     from app.models.model_version import ModelVersion
+    from app.models.review import Review
 
 
 class Prediction(UUIDPrimaryKeyMixin, Base):
@@ -137,4 +138,8 @@ class Prediction(UUIDPrimaryKeyMixin, Base):
     )
     predicted_department: Mapped[Department | None] = relationship(
         back_populates="predictions"
+    )
+    review: Mapped[Review | None] = relationship(
+        back_populates="prediction",
+        uselist=False,
     )
