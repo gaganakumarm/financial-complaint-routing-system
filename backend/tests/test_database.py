@@ -130,9 +130,8 @@ async def test_session_dependency_yields_and_closes_without_connecting() -> None
     connect.assert_not_called()
 
 
-def test_declarative_base_has_empty_metadata() -> None:
+def test_declarative_base_has_metadata() -> None:
     assert Base.metadata is not None
-    assert not Base.metadata.tables
 
 
 def test_uuid_and_timestamp_mixins() -> None:

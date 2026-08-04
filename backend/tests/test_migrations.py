@@ -13,6 +13,7 @@ from alembic.script import ScriptDirectory
 from pydantic import ValidationError
 from sqlalchemy.engine import make_url
 
+import app.models
 from app.core.config import Settings
 from app.db.base import Base
 
@@ -35,19 +36,23 @@ def test_alembic_dependency_and_file_structure() -> None:
     assert (SCRIPT_DIRECTORY / "versions").is_dir()
 
 
-def test_alembic_config_and_empty_script_directory() -> None:
+def test_alembic_config_and_single_revision() -> None:
     config = make_alembic_config()
     script = ScriptDirectory.from_config(config)
+    revisions = list(script.walk_revisions())
 
     assert config.get_main_option("script_location") == "alembic"
-    assert list(script.walk_revisions()) == []
-    assert script.get_heads() == []
-    assert script.get_bases() == []
+    assert len(revisions) == 1
+    assert revisions[0].revision == "20260803_01"
+    assert revisions[0].down_revision is None
+    assert "roles and users" in revisions[0].doc.lower()
+    assert script.get_heads() == ["20260803_01"]
+    assert script.get_bases() == ["20260803_01"]
 
 
-def test_migration_metadata_remains_empty() -> None:
+def test_migration_metadata_contains_identity_tables() -> None:
     assert Base.metadata is not None
-    assert not Base.metadata.tables
+    assert set(Base.metadata.tables) == {"roles", "users"}
 
 
 def test_committed_config_contains_no_database_credentials() -> None:
