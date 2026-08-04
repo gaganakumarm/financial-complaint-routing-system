@@ -330,22 +330,31 @@ def test_exact_package_and_api_exports() -> None:
     prior_api_exports = {
         "AccessToken",
         "AuthServiceDependency",
+        "ComplaintRepositoryDependency",
+        "ComplaintServiceDependency",
         "CurrentActiveUser",
         "CurrentUser",
         "DatabaseSession",
         "TransactionalAuthServiceDependency",
+        "TransactionalComplaintRepositoryDependency",
+        "TransactionalComplaintServiceDependency",
         "TransactionalDatabaseSession",
         "TransactionalUserRepositoryDependency",
         "UserRepositoryDependency",
         "get_auth_service",
+        "get_complaint_repository",
+        "get_complaint_service",
         "get_current_active_user",
         "get_current_user",
         "get_transactional_auth_service",
+        "get_transactional_complaint_repository",
+        "get_transactional_complaint_service",
         "get_transactional_session",
         "get_transactional_user_repository",
         "get_user_repository",
         "oauth2_scheme",
         "auth_router",
+        "complaints_router",
     }
     assert set(api.__all__) == prior_api_exports | {
         "AdministratorUser",
@@ -370,6 +379,8 @@ def test_authorization_import_has_no_side_effects_or_production_routes() -> None
         "/api/auth/register",
         "/api/auth/login",
         "/api/auth/me",
+        "/api/complaints",
+        "/api/complaints/{complaint_id}",
     }
     assert not any(
         isinstance(value, (UserRepository, AuthService))

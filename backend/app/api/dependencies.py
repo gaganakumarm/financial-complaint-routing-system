@@ -8,9 +8,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db_session, get_transactional_session
 from app.models import User
-from app.repositories import UserRepository
+from app.repositories import ComplaintRepository, UserRepository
 from app.services import (
     AuthService,
+    ComplaintService,
     InactiveUserError,
     InvalidCredentialsError,
     UserNotFoundError,
@@ -18,6 +19,12 @@ from app.services import (
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
+DatabaseSession = Annotated[AsyncSession, Depends(get_db_session)]
+TransactionalDatabaseSession = Annotated[
+    AsyncSession,
+    Depends(get_transactional_session),
+]
 
 
 async def get_user_repository(
@@ -32,6 +39,44 @@ async def get_transactional_user_repository(
 ) -> UserRepository:
     """Construct a user repository around the request transaction session."""
     return UserRepository(session)
+
+
+async def get_complaint_repository(
+    session: DatabaseSession,
+) -> ComplaintRepository:
+    """Construct a complaint repository around a read-only session."""
+    return ComplaintRepository(session)
+
+
+async def get_transactional_complaint_repository(
+    session: TransactionalDatabaseSession,
+) -> ComplaintRepository:
+    """Construct a complaint repository around the request transaction."""
+    return ComplaintRepository(session)
+
+
+ComplaintRepositoryDependency = Annotated[
+    ComplaintRepository,
+    Depends(get_complaint_repository),
+]
+TransactionalComplaintRepositoryDependency = Annotated[
+    ComplaintRepository,
+    Depends(get_transactional_complaint_repository),
+]
+
+
+def get_complaint_service(
+    complaint_repository: ComplaintRepositoryDependency,
+) -> ComplaintService:
+    """Construct a read-only complaint service."""
+    return ComplaintService(complaint_repository)
+
+
+def get_transactional_complaint_service(
+    complaint_repository: TransactionalComplaintRepositoryDependency,
+) -> ComplaintService:
+    """Construct a complaint service inside the request transaction."""
+    return ComplaintService(complaint_repository)
 
 
 def get_auth_service(
@@ -80,10 +125,13 @@ async def get_current_active_user(
     return current_user
 
 
-DatabaseSession = Annotated[AsyncSession, Depends(get_db_session)]
-TransactionalDatabaseSession = Annotated[
-    AsyncSession,
-    Depends(get_transactional_session),
+ComplaintServiceDependency = Annotated[
+    ComplaintService,
+    Depends(get_complaint_service),
+]
+TransactionalComplaintServiceDependency = Annotated[
+    ComplaintService,
+    Depends(get_transactional_complaint_service),
 ]
 UserRepositoryDependency = Annotated[
     UserRepository,

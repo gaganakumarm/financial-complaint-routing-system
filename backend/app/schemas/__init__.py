@@ -8,6 +8,12 @@ from app.schemas.auth import (
     TokenResponse,
     UserResponse,
 )
+from app.schemas.complaint import (
+    ComplaintCreateRequest,
+    ComplaintCreateResponse,
+    ComplaintListResponse,
+    ComplaintResponse,
+)
 
 __all__ = [
     "ErrorResponse",
@@ -16,4 +22,8 @@ __all__ = [
     "RegistrationResponse",
     "TokenResponse",
     "UserResponse",
+    "ComplaintCreateRequest",
+    "ComplaintCreateResponse",
+    "ComplaintListResponse",
+    "ComplaintResponse",
 ]

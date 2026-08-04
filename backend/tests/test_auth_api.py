@@ -40,6 +40,10 @@ from app.services import (
 
 
 SCHEMA_EXPORTS = {
+    "ComplaintCreateRequest",
+    "ComplaintCreateResponse",
+    "ComplaintListResponse",
+    "ComplaintResponse",
     "ErrorResponse",
     "LoginRequest",
     "RegisterRequest",
