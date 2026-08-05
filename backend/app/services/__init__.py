@@ -95,6 +95,16 @@ from app.services.model_promotion import (
     ModelPromotionStateConflictError,
     NonWinningResultRequiresOverrideError,
 )
+from app.services.deployment_candidate import (
+    DeploymentCandidateActivateInput, DeploymentCandidateConsistencyError,
+    DeploymentCandidateCreateInput, DeploymentCandidateNotFoundError,
+    DeploymentCandidatePersistenceError, DeploymentCandidateRejectInput,
+    DeploymentCandidateRetireInput, DeploymentCandidateService,
+    DeploymentCandidateServiceError, DeploymentCandidateStageInput,
+    DeploymentCandidateStateConflictError, DuplicateDeploymentCandidateError,
+    InvalidDeploymentCandidateError, PromotionDecisionNotApprovedError,
+    PromotionDecisionNotFoundForCandidateError,
+)
 
 __all__ = [
     "AuthenticationError",
@@ -182,4 +192,12 @@ __all__ = [
     "ModelPromotionServiceError",
     "ModelPromotionStateConflictError",
     "NonWinningResultRequiresOverrideError",
+    "DeploymentCandidateActivateInput", "DeploymentCandidateConsistencyError",
+    "DeploymentCandidateCreateInput", "DeploymentCandidateNotFoundError",
+    "DeploymentCandidatePersistenceError", "DeploymentCandidateRejectInput",
+    "DeploymentCandidateRetireInput", "DeploymentCandidateService",
+    "DeploymentCandidateServiceError", "DeploymentCandidateStageInput",
+    "DeploymentCandidateStateConflictError", "DuplicateDeploymentCandidateError",
+    "InvalidDeploymentCandidateError", "PromotionDecisionNotApprovedError",
+    "PromotionDecisionNotFoundForCandidateError",
 ]
