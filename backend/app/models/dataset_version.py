@@ -15,6 +15,7 @@ from app.db.mixins import UUIDPrimaryKeyMixin, utc_now
 
 if TYPE_CHECKING:
     from app.models.benchmark_experiment import BenchmarkExperiment
+    from app.models.dataset_example import DatasetExample
 
 
 class DatasetSplit(StrEnum):
@@ -89,3 +90,4 @@ class DatasetVersion(UUIDPrimaryKeyMixin, Base):
     benchmark_experiments: Mapped[list[BenchmarkExperiment]] = relationship(
         back_populates="dataset_version"
     )
+    examples: Mapped[list[DatasetExample]] = relationship(back_populates="dataset_version")

@@ -1,5 +1,7 @@
 """Application persistence models."""
 
+from app.db.base import Base
+
 from app.models.benchmark_experiment import (
     BenchmarkExperiment,
     BenchmarkExperimentStatus,
@@ -12,6 +14,7 @@ from app.models.complaint_status_history import (
     ComplaintStatusHistory,
 )
 from app.models.department import Department
+from app.models.dataset_example import DatasetExample
 from app.models.dataset_version import DatasetSplit, DatasetVersion
 from app.models.model_version import ModelType, ModelVersion
 from app.models.prediction import Prediction
@@ -20,6 +23,7 @@ from app.models.role import Role
 from app.models.user import User
 
 __all__ = [
+    "Base",
     "BenchmarkExperiment",
     "BenchmarkExperimentStatus",
     "BenchmarkResult",
@@ -31,6 +35,7 @@ __all__ = [
     "ComplaintUrgency",
     "Department",
     "DatasetSplit",
+    "DatasetExample",
     "DatasetVersion",
     "ModelType",
     "ModelVersion",

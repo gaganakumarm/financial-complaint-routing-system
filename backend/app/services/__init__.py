@@ -59,6 +59,7 @@ from app.services.dataset import (
     DatasetVersionNotFoundError,
     InvalidDatasetVersionError,
 )
+from app.services.dataset_example import DatasetExampleAlreadyExistsError, DatasetExampleInput, DatasetExampleNotFoundError, DatasetExamplePersistenceError, DatasetExampleReferenceError, DatasetExampleService, DatasetExampleServiceError, DatasetVersionNotFoundForExampleError, InvalidDatasetExampleError
 
 __all__ = [
     "AuthenticationError",
@@ -108,4 +109,13 @@ __all__ = [
     "DatasetVersionAlreadyExistsError",
     "DatasetVersionNotFoundError",
     "InvalidDatasetVersionError",
+    "DatasetExampleInput",
+    "DatasetExampleService",
+    "DatasetExampleServiceError",
+    "DatasetExampleNotFoundError",
+    "DatasetExampleAlreadyExistsError",
+    "DatasetExamplePersistenceError",
+    "DatasetExampleReferenceError",
+    "DatasetVersionNotFoundForExampleError",
+    "InvalidDatasetExampleError",
 ]

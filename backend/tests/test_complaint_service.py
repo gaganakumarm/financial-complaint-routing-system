@@ -151,6 +151,13 @@ def test_service_imports_exports_and_resource_isolation() -> None:
         "DatasetVersionNotFoundError",
         "InvalidDatasetVersionError",
     }
+    expected_dataset_exports |= {
+        "DatasetExampleInput", "DatasetExampleService", "DatasetExampleServiceError",
+        "DatasetExampleNotFoundError", "DatasetExampleAlreadyExistsError",
+        "DatasetExamplePersistenceError",
+        "InvalidDatasetExampleError", "DatasetExampleReferenceError",
+        "DatasetVersionNotFoundForExampleError",
+    }
     engine_cache_before = get_engine.cache_info()
     session_cache_before = get_session_factory.cache_info()
 

@@ -40,6 +40,7 @@ from app.schemas.dataset import (
     DatasetVersionListResponse,
     DatasetVersionResponse,
 )
+from app.schemas.dataset_example import DatasetExampleBatchCreateRequest, DatasetExampleBatchCreateResponse, DatasetExampleCreateItem, DatasetExampleListResponse, DatasetExampleResponse
 
 __all__ = [
     "ErrorResponse",
@@ -70,4 +71,9 @@ __all__ = [
     "DatasetVersionCreateRequest",
     "DatasetVersionListResponse",
     "DatasetVersionResponse",
+    "DatasetExampleCreateItem",
+    "DatasetExampleBatchCreateRequest",
+    "DatasetExampleBatchCreateResponse",
+    "DatasetExampleListResponse",
+    "DatasetExampleResponse",
 ]

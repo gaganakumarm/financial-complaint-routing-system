@@ -143,7 +143,8 @@ def test_declarative_base_has_metadata() -> None:
         "model_versions",
         "predictions",
         "reviews",
-        "dataset_versions",
+            "dataset_versions",
+            "dataset_examples",
         "benchmark_experiments",
         "benchmark_results",
     }

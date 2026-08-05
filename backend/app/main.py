@@ -7,6 +7,7 @@ from app.api.routes import (
     benchmarks_router,
     complaints_router,
     datasets_router,
+    dataset_examples_router,
     predictions_router,
     reviews_router,
 )
@@ -27,6 +28,7 @@ def create_app(settings: Settings) -> FastAPI:
     application.include_router(benchmarks_router, prefix=settings.api_prefix)
     application.include_router(complaints_router, prefix=settings.api_prefix)
     application.include_router(datasets_router, prefix=settings.api_prefix)
+    application.include_router(dataset_examples_router, prefix=settings.api_prefix)
     application.include_router(predictions_router, prefix=settings.api_prefix)
     application.include_router(reviews_router, prefix=settings.api_prefix)
 

@@ -44,6 +44,11 @@ from app.services import (
 
 
 EXPECTED_EXPORTS = {
+    "DatasetExampleRepositoryDependency", "TransactionalDatasetExampleRepositoryDependency",
+    "DatasetExampleServiceDependency", "TransactionalDatasetExampleServiceDependency",
+    "get_dataset_example_repository", "get_transactional_dataset_example_repository",
+    "get_dataset_example_service", "get_transactional_dataset_example_service",
+    "dataset_examples_router",
     "AdministratorUser",
     "AccessToken",
     "AuthServiceDependency",

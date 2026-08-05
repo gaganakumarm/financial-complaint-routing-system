@@ -67,6 +67,6 @@ def test_openapi_has_only_metadata_dataset_routes() -> None:
     schema = create_app(Settings()).openapi(); paths = schema["paths"]
     assert set(paths["/api/datasets"]) >= {"post", "get"}
     assert "get" in paths["/api/datasets/{dataset_version_id}"]
-    assert not any("upload" in path or "rows" in path or "examples" in path for path in paths if "dataset" in path)
+    assert not any("upload" in path or "rows" in path for path in paths if "dataset" in path)
     properties = schema["components"]["schemas"]["DatasetVersionResponse"]["properties"]
     assert set(properties) == {"id", "name", "version", "source_name", "source_reference", "taxonomy_version", "split", "record_count", "content_hash", "preparation_details", "created_at"}

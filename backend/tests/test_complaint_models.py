@@ -30,6 +30,7 @@ EXPECTED_TABLES = {
     "predictions",
     "reviews",
     "dataset_versions",
+    "dataset_examples",
     "benchmark_experiments",
     "benchmark_results",
 }

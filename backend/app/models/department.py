@@ -12,6 +12,7 @@ from app.db.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
     from app.models.complaint import Complaint
+    from app.models.dataset_example import DatasetExample
     from app.models.prediction import Prediction
     from app.models.review import Review
 
@@ -48,3 +49,4 @@ class Department(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     approved_reviews: Mapped[list[Review]] = relationship(
         back_populates="approved_department"
     )
+    dataset_examples: Mapped[list[DatasetExample]] = relationship(back_populates="expected_department")

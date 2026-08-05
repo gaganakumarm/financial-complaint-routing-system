@@ -409,6 +409,15 @@ def test_exact_package_and_api_exports() -> None:
         "CustomerUser",
         "ReviewerOrAdministratorUser",
         "ReviewerUser",
+        "DatasetExampleRepositoryDependency",
+        "TransactionalDatasetExampleRepositoryDependency",
+        "DatasetExampleServiceDependency",
+        "TransactionalDatasetExampleServiceDependency",
+        "get_dataset_example_repository",
+        "get_transactional_dataset_example_repository",
+        "get_dataset_example_service",
+        "get_transactional_dataset_example_service",
+        "dataset_examples_router",
     }
 
 
@@ -430,7 +439,8 @@ def test_authorization_import_has_no_side_effects_or_production_routes() -> None
         "/api/complaints",
         "/api/complaints/{complaint_id}",
         "/api/datasets",
-        "/api/datasets/{dataset_version_id}",
+            "/api/datasets/{dataset_version_id}",
+            "/api/datasets/{dataset_version_id}/examples",
         "/api/benchmarks/experiments",
         "/api/benchmarks/datasets/{dataset_version_id}/experiments",
         "/api/benchmarks/experiments/{experiment_id}/results",

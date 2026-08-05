@@ -15,6 +15,9 @@ from app.repositories import (
     BenchmarkExperimentRepository,
     BenchmarkResultRepository,
     DatasetVersionRepository,
+    DatasetExampleRepository,
+    ComplaintCategoryRepository,
+    DepartmentRepository,
     ModelVersionRepository,
     PredictionRepository,
     ReviewRepository,
@@ -27,6 +30,7 @@ from app.services import (
     BenchmarkService,
     ComplaintService,
     DatasetService,
+    DatasetExampleService,
     InactiveUserError,
     InvalidCredentialsError,
     PredictionService,
@@ -116,6 +120,30 @@ async def get_transactional_dataset_version_repository(
     return DatasetVersionRepository(session)
 
 
+async def get_dataset_example_repository(session: DatabaseSession) -> DatasetExampleRepository:
+    return DatasetExampleRepository(session)
+
+
+async def get_transactional_dataset_example_repository(session: TransactionalDatabaseSession) -> DatasetExampleRepository:
+    return DatasetExampleRepository(session)
+
+
+async def get_complaint_category_repository(session: DatabaseSession) -> ComplaintCategoryRepository:
+    return ComplaintCategoryRepository(session)
+
+
+async def get_transactional_complaint_category_repository(session: TransactionalDatabaseSession) -> ComplaintCategoryRepository:
+    return ComplaintCategoryRepository(session)
+
+
+async def get_department_repository(session: DatabaseSession) -> DepartmentRepository:
+    return DepartmentRepository(session)
+
+
+async def get_transactional_department_repository(session: TransactionalDatabaseSession) -> DepartmentRepository:
+    return DepartmentRepository(session)
+
+
 async def get_benchmark_experiment_repository(
     session: DatabaseSession,
 ) -> BenchmarkExperimentRepository:
@@ -170,6 +198,12 @@ DatasetVersionRepositoryDependency = Annotated[
 TransactionalDatasetVersionRepositoryDependency = Annotated[
     DatasetVersionRepository, Depends(get_transactional_dataset_version_repository)
 ]
+DatasetExampleRepositoryDependency = Annotated[DatasetExampleRepository, Depends(get_dataset_example_repository)]
+TransactionalDatasetExampleRepositoryDependency = Annotated[DatasetExampleRepository, Depends(get_transactional_dataset_example_repository)]
+ComplaintCategoryRepositoryDependency = Annotated[ComplaintCategoryRepository, Depends(get_complaint_category_repository)]
+TransactionalComplaintCategoryRepositoryDependency = Annotated[ComplaintCategoryRepository, Depends(get_transactional_complaint_category_repository)]
+DepartmentRepositoryDependency = Annotated[DepartmentRepository, Depends(get_department_repository)]
+TransactionalDepartmentRepositoryDependency = Annotated[DepartmentRepository, Depends(get_transactional_department_repository)]
 BenchmarkExperimentRepositoryDependency = Annotated[
     BenchmarkExperimentRepository, Depends(get_benchmark_experiment_repository)
 ]
@@ -264,6 +298,14 @@ def get_transactional_dataset_service(
     repository: TransactionalDatasetVersionRepositoryDependency,
 ) -> DatasetService:
     return DatasetService(repository)
+
+
+def get_dataset_example_service(dataset_version_repository: DatasetVersionRepositoryDependency, dataset_example_repository: DatasetExampleRepositoryDependency, complaint_category_repository: ComplaintCategoryRepositoryDependency, department_repository: DepartmentRepositoryDependency) -> DatasetExampleService:
+    return DatasetExampleService(dataset_version_repository=dataset_version_repository, dataset_example_repository=dataset_example_repository, complaint_category_repository=complaint_category_repository, department_repository=department_repository)
+
+
+def get_transactional_dataset_example_service(dataset_version_repository: TransactionalDatasetVersionRepositoryDependency, dataset_example_repository: TransactionalDatasetExampleRepositoryDependency, complaint_category_repository: TransactionalComplaintCategoryRepositoryDependency, department_repository: TransactionalDepartmentRepositoryDependency) -> DatasetExampleService:
+    return DatasetExampleService(dataset_version_repository=dataset_version_repository, dataset_example_repository=dataset_example_repository, complaint_category_repository=complaint_category_repository, department_repository=department_repository)
 
 
 def get_prediction_service(
@@ -396,6 +438,8 @@ DatasetServiceDependency = Annotated[DatasetService, Depends(get_dataset_service
 TransactionalDatasetServiceDependency = Annotated[
     DatasetService, Depends(get_transactional_dataset_service)
 ]
+DatasetExampleServiceDependency = Annotated[DatasetExampleService, Depends(get_dataset_example_service)]
+TransactionalDatasetExampleServiceDependency = Annotated[DatasetExampleService, Depends(get_transactional_dataset_example_service)]
 ReviewServiceDependency = Annotated[ReviewService, Depends(get_review_service)]
 TransactionalReviewServiceDependency = Annotated[
     ReviewService, Depends(get_transactional_review_service)
