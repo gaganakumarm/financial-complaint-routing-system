@@ -78,6 +78,23 @@ from app.services.benchmark_ranking import (
     RankedBenchmarkResult,
     rank_benchmark_results,
 )
+from app.services.model_promotion import (
+    BenchmarkComparisonNotFoundForPromotionError,
+    BenchmarkResultModelMismatchError,
+    BenchmarkResultNotFoundForPromotionError,
+    BenchmarkResultNotInComparisonError,
+    DuplicatePendingModelPromotionError,
+    InvalidModelPromotionError,
+    ModelPromotionCancelInput,
+    ModelPromotionCreateInput,
+    ModelPromotionNotFoundError,
+    ModelPromotionPersistenceError,
+    ModelPromotionReviewInput,
+    ModelPromotionService,
+    ModelPromotionServiceError,
+    ModelPromotionStateConflictError,
+    NonWinningResultRequiresOverrideError,
+)
 
 __all__ = [
     "AuthenticationError",
@@ -150,4 +167,19 @@ __all__ = [
     "BenchmarkRankingInput",
     "RankedBenchmarkResult",
     "rank_benchmark_results",
+    "BenchmarkComparisonNotFoundForPromotionError",
+    "BenchmarkResultModelMismatchError",
+    "BenchmarkResultNotFoundForPromotionError",
+    "BenchmarkResultNotInComparisonError",
+    "DuplicatePendingModelPromotionError",
+    "InvalidModelPromotionError",
+    "ModelPromotionCancelInput",
+    "ModelPromotionCreateInput",
+    "ModelPromotionNotFoundError",
+    "ModelPromotionPersistenceError",
+    "ModelPromotionReviewInput",
+    "ModelPromotionService",
+    "ModelPromotionServiceError",
+    "ModelPromotionStateConflictError",
+    "NonWinningResultRequiresOverrideError",
 ]
