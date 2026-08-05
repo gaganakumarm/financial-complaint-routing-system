@@ -25,6 +25,9 @@ test = [
     "pytest",
 ]
 
+[project.scripts]
+complaint-routing-bootstrap = "app.bootstrap.development:_main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["app*"]

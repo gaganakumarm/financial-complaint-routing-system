@@ -10,15 +10,18 @@ from app.db.session import get_db_session, get_transactional_session
 from app.models import User
 from app.repositories import (
     ComplaintRepository,
+    ModelVersionRepository,
     PredictionRepository,
     ReviewRepository,
     UserRepository,
 )
+from app.prediction import ComplaintPredictor, ConfiguredBaselinePredictor
 from app.services import (
     AuthService,
     ComplaintService,
     InactiveUserError,
     InvalidCredentialsError,
+    PredictionService,
     ReviewService,
     UserNotFoundError,
 )
@@ -83,6 +86,18 @@ async def get_transactional_prediction_repository(
     return PredictionRepository(session)
 
 
+async def get_model_version_repository(
+    session: DatabaseSession,
+) -> ModelVersionRepository:
+    return ModelVersionRepository(session)
+
+
+async def get_transactional_model_version_repository(
+    session: TransactionalDatabaseSession,
+) -> ModelVersionRepository:
+    return ModelVersionRepository(session)
+
+
 ComplaintRepositoryDependency = Annotated[
     ComplaintRepository,
     Depends(get_complaint_repository),
@@ -101,6 +116,12 @@ PredictionRepositoryDependency = Annotated[
 TransactionalPredictionRepositoryDependency = Annotated[
     PredictionRepository, Depends(get_transactional_prediction_repository)
 ]
+ModelVersionRepositoryDependency = Annotated[
+    ModelVersionRepository, Depends(get_model_version_repository)
+]
+TransactionalModelVersionRepositoryDependency = Annotated[
+    ModelVersionRepository, Depends(get_transactional_model_version_repository)
+]
 
 
 def get_complaint_service(
@@ -115,6 +136,47 @@ def get_transactional_complaint_service(
 ) -> ComplaintService:
     """Construct a complaint service inside the request transaction."""
     return ComplaintService(complaint_repository)
+
+
+def get_complaint_predictor() -> ComplaintPredictor:
+    return ConfiguredBaselinePredictor()
+
+
+ComplaintPredictorDependency = Annotated[
+    ComplaintPredictor, Depends(get_complaint_predictor)
+]
+
+
+def get_prediction_service(
+    complaint_repository: ComplaintRepositoryDependency,
+    model_version_repository: ModelVersionRepositoryDependency,
+    prediction_repository: PredictionRepositoryDependency,
+    complaint_service: "ComplaintServiceDependency",
+    predictor: ComplaintPredictorDependency,
+) -> PredictionService:
+    return PredictionService(
+        complaint_repository=complaint_repository,
+        model_version_repository=model_version_repository,
+        prediction_repository=prediction_repository,
+        complaint_service=complaint_service,
+        predictor=predictor,
+    )
+
+
+def get_transactional_prediction_service(
+    complaint_repository: TransactionalComplaintRepositoryDependency,
+    model_version_repository: TransactionalModelVersionRepositoryDependency,
+    prediction_repository: TransactionalPredictionRepositoryDependency,
+    complaint_service: "TransactionalComplaintServiceDependency",
+    predictor: ComplaintPredictorDependency,
+) -> PredictionService:
+    return PredictionService(
+        complaint_repository=complaint_repository,
+        model_version_repository=model_version_repository,
+        prediction_repository=prediction_repository,
+        complaint_service=complaint_service,
+        predictor=predictor,
+    )
 
 
 def get_review_service(
@@ -198,6 +260,12 @@ ComplaintServiceDependency = Annotated[
 TransactionalComplaintServiceDependency = Annotated[
     ComplaintService,
     Depends(get_transactional_complaint_service),
+]
+PredictionServiceDependency = Annotated[
+    PredictionService, Depends(get_prediction_service)
+]
+TransactionalPredictionServiceDependency = Annotated[
+    PredictionService, Depends(get_transactional_prediction_service)
 ]
 ReviewServiceDependency = Annotated[ReviewService, Depends(get_review_service)]
 TransactionalReviewServiceDependency = Annotated[

@@ -22,6 +22,12 @@ from app.schemas.review import (
     ReviewQueueResponse,
     ReviewResponse,
 )
+from app.schemas.prediction import (
+    PredictionListResponse,
+    PredictionResponse,
+    PredictionRunRequest,
+    PredictionRunResponse,
+)
 
 __all__ = [
     "ErrorResponse",
@@ -40,4 +46,8 @@ __all__ = [
     "ReviewQueueItemResponse",
     "ReviewQueueResponse",
     "ReviewResponse",
+    "PredictionListResponse",
+    "PredictionResponse",
+    "PredictionRunRequest",
+    "PredictionRunResponse",
 ]
