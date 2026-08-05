@@ -113,7 +113,7 @@ def test_exports_and_migration_chain() -> None:
     script = ScriptDirectory.from_config(Config("alembic.ini"))
     revision = script.get_revision("20260805_09")
     assert revision.down_revision == "20260805_08"
-    assert script.get_heads() == ["20260805_10"]
+    assert script.get_heads() == ["20260805_11"]
 
 
 def test_migration_upgrade_and_downgrade(monkeypatch) -> None:

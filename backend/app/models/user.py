@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from app.models.review import Review
     from app.models.model_promotion_decision import ModelPromotionDecision
     from app.models.deployment_candidate import DeploymentCandidate
+    from app.models.deployment_candidate_status_history import DeploymentCandidateStatusHistory
 
 
 class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -95,3 +96,7 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     requested_model_promotions: Mapped[list[ModelPromotionDecision]] = relationship(back_populates="requested_by_user", foreign_keys="ModelPromotionDecision.requested_by_user_id")
     reviewed_model_promotions: Mapped[list[ModelPromotionDecision]] = relationship(back_populates="reviewed_by_user", foreign_keys="ModelPromotionDecision.reviewed_by_user_id")
     registered_deployment_candidates: Mapped[list[DeploymentCandidate]] = relationship(back_populates="registered_by_user", foreign_keys="DeploymentCandidate.registered_by_user_id")
+    deployment_candidate_status_changes: Mapped[list[DeploymentCandidateStatusHistory]] = relationship(
+        back_populates="changed_by_user",
+        foreign_keys="DeploymentCandidateStatusHistory.changed_by_user_id",
+    )

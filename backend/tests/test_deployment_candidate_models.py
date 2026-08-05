@@ -82,7 +82,7 @@ def test_exports_revision_and_single_head() -> None:
     assert models.DeploymentCandidate is DeploymentCandidate and models.DeploymentCandidateStatus is DeploymentCandidateStatus
     assert {"DeploymentCandidate", "DeploymentCandidateStatus"} <= set(models.__all__)
     script = ScriptDirectory.from_config(Config("alembic.ini")); revision = script.get_revision("20260805_10")
-    assert revision.down_revision == "20260805_09" and script.get_heads() == ["20260805_10"]
+    assert revision.down_revision == "20260805_09" and script.get_heads() == ["20260805_11"]
 
 
 def test_migration_upgrade_downgrade_enum_table_and_indexes(monkeypatch) -> None:

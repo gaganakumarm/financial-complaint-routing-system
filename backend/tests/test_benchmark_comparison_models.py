@@ -71,7 +71,7 @@ def test_models_are_exported_and_migration_is_single_head() -> None:
     assert {"BenchmarkComparison", "BenchmarkComparisonMember"} <= set(models.__all__)
     script = ScriptDirectory.from_config(Config("alembic.ini")); revision = script.get_revision("20260805_07")
     assert revision.down_revision == "20260805_06"
-    assert script.get_heads() == ["20260805_10"]
+    assert script.get_heads() == ["20260805_11"]
 
 
 def test_migration_upgrade_and_downgrade_operations(monkeypatch) -> None:

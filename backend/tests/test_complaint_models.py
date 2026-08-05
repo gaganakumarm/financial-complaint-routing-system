@@ -26,6 +26,7 @@ EXPECTED_TABLES = {
     "departments",
     "complaints",
     "complaint_status_history",
+    "deployment_candidate_status_history",
     "model_versions",
     "predictions",
     "reviews",

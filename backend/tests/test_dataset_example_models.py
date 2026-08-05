@@ -19,7 +19,7 @@ def test_dataset_example_metadata_contract() -> None:
 
 def test_dataset_example_migration_is_current_head() -> None:
     script = ScriptDirectory.from_config(Config("alembic.ini"))
-    assert script.get_heads() == ["20260805_10"]
+    assert script.get_heads() == ["20260805_11"]
     assert script.get_revision("20260805_06").down_revision == "20260804_05"
 
 

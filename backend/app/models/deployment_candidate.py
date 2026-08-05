@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from app.models.model_promotion_decision import ModelPromotionDecision
     from app.models.model_version import ModelVersion
     from app.models.user import User
+    from app.models.deployment_candidate_status_history import DeploymentCandidateStatusHistory
 
 
 class DeploymentCandidateStatus(StrEnum):
@@ -89,3 +90,10 @@ class DeploymentCandidate(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     benchmark_result: Mapped[BenchmarkResult] = relationship(back_populates="deployment_candidates")
     model_version: Mapped[ModelVersion] = relationship(back_populates="deployment_candidates")
     registered_by_user: Mapped[User] = relationship(back_populates="registered_deployment_candidates", foreign_keys=[registered_by_user_id])
+    status_history: Mapped[list[DeploymentCandidateStatusHistory]] = relationship(
+        back_populates="deployment_candidate",
+        order_by=(
+            "DeploymentCandidateStatusHistory.changed_at.asc(), "
+            "DeploymentCandidateStatusHistory.id.asc()"
+        ),
+    )
