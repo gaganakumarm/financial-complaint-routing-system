@@ -19,7 +19,7 @@ from app.models import DeploymentCandidateStatus, ModelPromotionStatus, Role, Us
 from app.schemas import DeploymentCandidateActivateRequest, DeploymentCandidateCreateRequest, DeploymentCandidateRejectRequest, DeploymentCandidateResponse, DeploymentCandidateRetireRequest, DeploymentCandidateStageRequest
 from app.services import DeploymentCandidateNotFoundError, DeploymentCandidatePersistenceError, DuplicateDeploymentCandidateError, PromotionDecisionNotApprovedError, PromotionDecisionNotFoundForCandidateError
 from app.services.deployment_candidate import ActiveDeploymentCandidateConflictError
-from app.repositories import DeploymentCandidateRepository, ModelPromotionRepository
+from app.repositories import DeploymentCandidateRepository, DeploymentCandidateStatusHistoryRepository, ModelPromotionRepository
 from app.services import DeploymentCandidateService
 
 NOW = datetime.now(timezone.utc)
@@ -83,14 +83,18 @@ async def test_dependency_factories_reuse_the_injected_session_and_repositories(
     assert isinstance(read_repository, DeploymentCandidateRepository)
     assert isinstance(transactional_repository, DeploymentCandidateRepository)
     assert read_repository.session is transactional_repository.session is session
-    promotion_repository = ModelPromotionRepository(session)
-    read_service = get_deployment_candidate_service(read_repository, promotion_repository)
-    transactional_service = get_transactional_deployment_candidate_service(transactional_repository, promotion_repository)
+    read_service = get_deployment_candidate_service(session)
+    transactional_service = get_transactional_deployment_candidate_service(session)
     assert isinstance(read_service, DeploymentCandidateService)
     assert isinstance(transactional_service, DeploymentCandidateService)
-    assert read_service._candidates is read_repository
-    assert transactional_service._candidates is transactional_repository
-    assert read_service._promotions is transactional_service._promotions is promotion_repository
+    assert isinstance(read_service._candidates, DeploymentCandidateRepository)
+    assert isinstance(transactional_service._candidates, DeploymentCandidateRepository)
+    assert isinstance(read_service._promotions, ModelPromotionRepository)
+    assert isinstance(transactional_service._promotions, ModelPromotionRepository)
+    assert isinstance(read_service._history, DeploymentCandidateStatusHistoryRepository)
+    assert isinstance(transactional_service._history, DeploymentCandidateStatusHistoryRepository)
+    assert {read_service._candidates.session, read_service._promotions.session, read_service._history.session} == {session}
+    assert {transactional_service._candidates.session, transactional_service._promotions.session, transactional_service._history.session} == {session}
 
 
 @pytest.mark.anyio

@@ -23,6 +23,7 @@ from app.repositories import (
     ModelVersionRepository,
     ModelPromotionRepository,
     DeploymentCandidateRepository,
+    DeploymentCandidateStatusHistoryRepository,
     PredictionRepository,
     ReviewRepository,
     UserRepository,
@@ -384,17 +385,23 @@ def get_transactional_model_promotion_service(
 
 
 def get_deployment_candidate_service(
-    candidate_repository: DeploymentCandidateRepositoryDependency,
-    promotion_repository: ModelPromotionRepositoryDependency,
+    session: DatabaseSession,
 ) -> DeploymentCandidateService:
-    return DeploymentCandidateService(candidate_repository, promotion_repository)
+    return DeploymentCandidateService(
+        DeploymentCandidateRepository(session),
+        ModelPromotionRepository(session),
+        DeploymentCandidateStatusHistoryRepository(session),
+    )
 
 
 def get_transactional_deployment_candidate_service(
-    candidate_repository: TransactionalDeploymentCandidateRepositoryDependency,
-    promotion_repository: TransactionalModelPromotionRepositoryDependency,
+    session: TransactionalDatabaseSession,
 ) -> DeploymentCandidateService:
-    return DeploymentCandidateService(candidate_repository, promotion_repository)
+    return DeploymentCandidateService(
+        DeploymentCandidateRepository(session),
+        ModelPromotionRepository(session),
+        DeploymentCandidateStatusHistoryRepository(session),
+    )
 
 
 def get_dataset_service(

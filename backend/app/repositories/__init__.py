@@ -15,6 +15,7 @@ from app.repositories.department import DepartmentRepository
 from app.repositories.model_version import ModelVersionRepository
 from app.repositories.model_promotion import ModelPromotionRepository
 from app.repositories.deployment_candidate import DeploymentCandidateRepository
+from app.repositories.deployment_candidate_status_history import DeploymentCandidateStatusHistoryRepository
 from app.repositories.prediction import PredictionRepository
 from app.repositories.review import ReviewRepository
 from app.repositories.user import UserRepository
@@ -33,6 +34,7 @@ __all__ = [
     "ModelVersionRepository",
     "ModelPromotionRepository",
     "DeploymentCandidateRepository",
+    "DeploymentCandidateStatusHistoryRepository",
     "PredictionRepository",
     "ReviewRepository",
     "UserRepository",

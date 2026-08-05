@@ -34,6 +34,7 @@ from app.api import (
     get_benchmark_comparison_service,
     get_model_promotion_repository,
     get_model_promotion_service,
+    get_deployment_candidate_service,
     get_current_active_user,
     get_current_user,
     get_transactional_auth_service,
@@ -41,6 +42,7 @@ from app.api import (
     get_transactional_benchmark_comparison_service,
     get_transactional_model_promotion_repository,
     get_transactional_model_promotion_service,
+    get_transactional_deployment_candidate_service,
     get_transactional_session,
     get_transactional_user_repository,
     get_user_repository,
@@ -50,7 +52,7 @@ from app.db.engine import get_engine
 from app.db.session import get_session_factory
 from app.main import app as production_app
 from app.models import User
-from app.repositories import BenchmarkComparisonRepository, BenchmarkResultRepository, ModelPromotionRepository, UserRepository
+from app.repositories import BenchmarkComparisonRepository, BenchmarkResultRepository, DeploymentCandidateRepository, DeploymentCandidateStatusHistoryRepository, ModelPromotionRepository, UserRepository
 from app.services import (
     AuthService,
     BenchmarkComparisonService,
@@ -203,6 +205,18 @@ def test_oauth2_scheme_configuration() -> None:
     assert oauth2_scheme.model.flows.password.tokenUrl == "/api/auth/login"
     assert oauth2_scheme.model.flows.password.scopes == {}
     assert oauth2_scheme.auto_error is True
+
+
+def test_deployment_candidate_factories_share_exact_request_session() -> None:
+    session = MagicMock(spec=AsyncSession)
+    for factory in (get_deployment_candidate_service, get_transactional_deployment_candidate_service):
+        service = factory(session)
+        assert isinstance(service._candidates, DeploymentCandidateRepository)
+        assert isinstance(service._promotions, ModelPromotionRepository)
+        assert isinstance(service._history, DeploymentCandidateStatusHistoryRepository)
+        assert service._candidates.session is session
+        assert service._promotions.session is session
+        assert service._history.session is session
 
 
 @pytest.mark.anyio
