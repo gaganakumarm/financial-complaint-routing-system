@@ -135,6 +135,9 @@ def test_schema_package_exports_are_exact() -> None:
         "DeploymentCandidateRetireRequest",
         "DeploymentCandidateStageRequest",
         "DeploymentCandidateUserResponse",
+        "DeploymentCandidateHistoryUserResponse",
+        "DeploymentCandidateStatusHistoryListResponse",
+        "DeploymentCandidateStatusHistoryResponse",
     }
     assert auth_router.prefix == "/auth"
 

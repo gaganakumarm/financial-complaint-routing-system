@@ -483,6 +483,8 @@ def test_authorization_import_has_no_side_effects_or_production_routes() -> None
                     "/api/deployment-candidates",
                     "/api/deployment-candidates/active",
                     "/api/deployment-candidates/{candidate_id}",
+                    "/api/deployment-candidates/{candidate_id}/history",
+                    "/api/deployment-candidates/{candidate_id}/history/latest",
                     "/api/deployment-candidates/{candidate_id}/stage",
                     "/api/deployment-candidates/{candidate_id}/activate",
                     "/api/deployment-candidates/{candidate_id}/retire",

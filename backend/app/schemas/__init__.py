@@ -123,6 +123,9 @@ __all__ = [
     "DeploymentCandidateRetireRequest",
     "DeploymentCandidateStageRequest",
     "DeploymentCandidateUserResponse",
+    "DeploymentCandidateHistoryUserResponse",
+    "DeploymentCandidateStatusHistoryListResponse",
+    "DeploymentCandidateStatusHistoryResponse",
 ]
 from app.schemas.deployment_candidate import (
     DeploymentCandidateActivateRequest,
@@ -136,4 +139,9 @@ from app.schemas.deployment_candidate import (
     DeploymentCandidateRetireRequest,
     DeploymentCandidateStageRequest,
     DeploymentCandidateUserResponse,
+)
+from app.schemas.deployment_candidate_history import (
+    DeploymentCandidateHistoryUserResponse,
+    DeploymentCandidateStatusHistoryListResponse,
+    DeploymentCandidateStatusHistoryResponse,
 )

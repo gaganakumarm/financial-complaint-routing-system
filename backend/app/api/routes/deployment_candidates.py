@@ -12,6 +12,8 @@ from app.schemas import (
     DeploymentCandidateListResponse, DeploymentCandidateRejectRequest,
     DeploymentCandidateResponse, DeploymentCandidateRetireRequest,
     DeploymentCandidateStageRequest,
+    DeploymentCandidateStatusHistoryListResponse,
+    DeploymentCandidateStatusHistoryResponse,
 )
 from app.services import (
     DeploymentCandidateActivateInput, DeploymentCandidateConsistencyError,
@@ -73,6 +75,33 @@ async def get_active_deployment_candidate(current_user: ReviewerOrAdministratorU
     if candidate is None:
         raise HTTPException(status_code=404, detail="Active deployment candidate not found")
     return _response(candidate)
+
+
+@router.get("/{candidate_id}/history/latest", response_model=DeploymentCandidateStatusHistoryResponse)
+async def get_latest_deployment_candidate_history(candidate_id: UUID, current_user: ReviewerOrAdministratorUser, candidate_service: DeploymentCandidateServiceDependency) -> DeploymentCandidateStatusHistoryResponse:
+    del current_user
+    try:
+        history = await candidate_service.get_latest_candidate_history(candidate_id)
+    except _SERVICE_ERRORS as error:
+        raise _translate_error(error) from None
+    if history is None:
+        raise HTTPException(status_code=404, detail="Deployment candidate history not found")
+    return DeploymentCandidateStatusHistoryResponse.model_validate(history)
+
+
+@router.get("/{candidate_id}/history", response_model=DeploymentCandidateStatusHistoryListResponse)
+async def list_deployment_candidate_history(candidate_id: UUID, current_user: ReviewerOrAdministratorUser, candidate_service: DeploymentCandidateServiceDependency, offset: int = Query(default=0, ge=0), limit: int = Query(default=100, ge=1, le=500)) -> DeploymentCandidateStatusHistoryListResponse:
+    del current_user
+    try:
+        history = await candidate_service.list_candidate_history(candidate_id, offset=offset, limit=limit)
+    except _SERVICE_ERRORS as error:
+        raise _translate_error(error) from None
+    return DeploymentCandidateStatusHistoryListResponse(
+        items=[DeploymentCandidateStatusHistoryResponse.model_validate(item) for item in history],
+        offset=offset,
+        limit=limit,
+        count=len(history),
+    )
 
 
 @router.get("/{candidate_id}", response_model=DeploymentCandidateResponse)
