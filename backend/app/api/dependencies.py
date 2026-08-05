@@ -26,6 +26,7 @@ from app.services import (
     BenchmarkExecutionError,
     BenchmarkService,
     ComplaintService,
+    DatasetService,
     InactiveUserError,
     InvalidCredentialsError,
     PredictionService,
@@ -253,6 +254,18 @@ def get_transactional_benchmark_service(
     )
 
 
+def get_dataset_service(
+    repository: DatasetVersionRepositoryDependency,
+) -> DatasetService:
+    return DatasetService(repository)
+
+
+def get_transactional_dataset_service(
+    repository: TransactionalDatasetVersionRepositoryDependency,
+) -> DatasetService:
+    return DatasetService(repository)
+
+
 def get_prediction_service(
     complaint_repository: ComplaintRepositoryDependency,
     model_version_repository: ModelVersionRepositoryDependency,
@@ -378,6 +391,10 @@ BenchmarkServiceDependency = Annotated[
 ]
 TransactionalBenchmarkServiceDependency = Annotated[
     BenchmarkService, Depends(get_transactional_benchmark_service)
+]
+DatasetServiceDependency = Annotated[DatasetService, Depends(get_dataset_service)]
+TransactionalDatasetServiceDependency = Annotated[
+    DatasetService, Depends(get_transactional_dataset_service)
 ]
 ReviewServiceDependency = Annotated[ReviewService, Depends(get_review_service)]
 TransactionalReviewServiceDependency = Annotated[

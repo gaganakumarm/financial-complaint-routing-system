@@ -52,6 +52,13 @@ from app.services.benchmark import (
     InvalidBenchmarkPredictionError,
     ModelVersionNotFoundError,
 )
+from app.services.dataset import (
+    DatasetService,
+    DatasetServiceError,
+    DatasetVersionAlreadyExistsError,
+    DatasetVersionNotFoundError,
+    InvalidDatasetVersionError,
+)
 
 __all__ = [
     "AuthenticationError",
@@ -96,4 +103,9 @@ __all__ = [
     "InvalidBenchmarkExampleError",
     "InvalidBenchmarkPredictionError",
     "ModelVersionNotFoundError",
+    "DatasetService",
+    "DatasetServiceError",
+    "DatasetVersionAlreadyExistsError",
+    "DatasetVersionNotFoundError",
+    "InvalidDatasetVersionError",
 ]

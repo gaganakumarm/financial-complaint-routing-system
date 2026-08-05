@@ -35,6 +35,11 @@ from app.schemas.benchmark import (
     BenchmarkResultListResponse,
     BenchmarkResultResponse,
 )
+from app.schemas.dataset import (
+    DatasetVersionCreateRequest,
+    DatasetVersionListResponse,
+    DatasetVersionResponse,
+)
 
 __all__ = [
     "ErrorResponse",
@@ -62,4 +67,7 @@ __all__ = [
     "BenchmarkExperimentResponse",
     "BenchmarkResultListResponse",
     "BenchmarkResultResponse",
+    "DatasetVersionCreateRequest",
+    "DatasetVersionListResponse",
+    "DatasetVersionResponse",
 ]

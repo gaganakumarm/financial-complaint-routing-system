@@ -144,6 +144,13 @@ def test_service_imports_exports_and_resource_isolation() -> None:
         "InvalidBenchmarkPredictionError",
         "ModelVersionNotFoundError",
     }
+    expected_dataset_exports = {
+        "DatasetService",
+        "DatasetServiceError",
+        "DatasetVersionAlreadyExistsError",
+        "DatasetVersionNotFoundError",
+        "InvalidDatasetVersionError",
+    }
     engine_cache_before = get_engine.cache_info()
     session_cache_before = get_session_factory.cache_info()
 
@@ -153,6 +160,7 @@ def test_service_imports_exports_and_resource_isolation() -> None:
         | expected_prediction_exports
         | expected_review_exports
         | expected_benchmark_exports
+        | expected_dataset_exports
     )
     assert issubclass(ComplaintServiceError, Exception)
     assert issubclass(AuthenticationError, Exception)
