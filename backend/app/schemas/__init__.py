@@ -41,6 +41,15 @@ from app.schemas.dataset import (
     DatasetVersionResponse,
 )
 from app.schemas.dataset_example import DatasetExampleBatchCreateRequest, DatasetExampleBatchCreateResponse, DatasetExampleCreateItem, DatasetExampleListResponse, DatasetExampleResponse
+from app.schemas.benchmark_comparison import (
+    BenchmarkComparisonCreateRequest,
+    BenchmarkComparisonExperimentResponse,
+    BenchmarkComparisonListResponse,
+    BenchmarkComparisonMemberResponse,
+    BenchmarkComparisonModelVersionResponse,
+    BenchmarkComparisonResponse,
+    BenchmarkComparisonResultResponse,
+)
 
 __all__ = [
     "ErrorResponse",
@@ -76,4 +85,11 @@ __all__ = [
     "DatasetExampleBatchCreateResponse",
     "DatasetExampleListResponse",
     "DatasetExampleResponse",
+    "BenchmarkComparisonCreateRequest",
+    "BenchmarkComparisonExperimentResponse",
+    "BenchmarkComparisonListResponse",
+    "BenchmarkComparisonMemberResponse",
+    "BenchmarkComparisonModelVersionResponse",
+    "BenchmarkComparisonResponse",
+    "BenchmarkComparisonResultResponse",
 ]

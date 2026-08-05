@@ -15,6 +15,7 @@ from app.repositories import (
     BenchmarkExperimentRepository,
     BenchmarkResultRepository,
     BenchmarkExampleResultRepository,
+    BenchmarkComparisonRepository,
     DatasetVersionRepository,
     DatasetExampleRepository,
     ComplaintCategoryRepository,
@@ -29,6 +30,7 @@ from app.services import (
     AuthService,
     BenchmarkExecutionError,
     BenchmarkService,
+    BenchmarkComparisonService,
     ComplaintService,
     DatasetService,
     DatasetExampleService,
@@ -177,6 +179,18 @@ async def get_transactional_benchmark_example_result_repository(session: Transac
     return BenchmarkExampleResultRepository(session)
 
 
+async def get_benchmark_comparison_repository(
+    session: DatabaseSession,
+) -> BenchmarkComparisonRepository:
+    return BenchmarkComparisonRepository(session)
+
+
+async def get_transactional_benchmark_comparison_repository(
+    session: TransactionalDatabaseSession,
+) -> BenchmarkComparisonRepository:
+    return BenchmarkComparisonRepository(session)
+
+
 ComplaintRepositoryDependency = Annotated[
     ComplaintRepository,
     Depends(get_complaint_repository),
@@ -228,6 +242,8 @@ TransactionalBenchmarkResultRepositoryDependency = Annotated[
 ]
 BenchmarkExampleResultRepositoryDependency = Annotated[BenchmarkExampleResultRepository, Depends(get_benchmark_example_result_repository)]
 TransactionalBenchmarkExampleResultRepositoryDependency = Annotated[BenchmarkExampleResultRepository, Depends(get_transactional_benchmark_example_result_repository)]
+BenchmarkComparisonRepositoryDependency = Annotated[BenchmarkComparisonRepository, Depends(get_benchmark_comparison_repository)]
+TransactionalBenchmarkComparisonRepositoryDependency = Annotated[BenchmarkComparisonRepository, Depends(get_transactional_benchmark_comparison_repository)]
 
 
 def get_complaint_service(
@@ -305,6 +321,20 @@ def get_transactional_benchmark_service(
         dataset_example_repository=dataset_example_repository,
         benchmark_example_result_repository=benchmark_example_result_repository,
     )
+
+
+def get_benchmark_comparison_service(
+    comparison_repository: BenchmarkComparisonRepositoryDependency,
+    result_repository: BenchmarkResultRepositoryDependency,
+) -> BenchmarkComparisonService:
+    return BenchmarkComparisonService(comparison_repository, result_repository)
+
+
+def get_transactional_benchmark_comparison_service(
+    comparison_repository: TransactionalBenchmarkComparisonRepositoryDependency,
+    result_repository: TransactionalBenchmarkResultRepositoryDependency,
+) -> BenchmarkComparisonService:
+    return BenchmarkComparisonService(comparison_repository, result_repository)
 
 
 def get_dataset_service(
@@ -453,6 +483,8 @@ BenchmarkServiceDependency = Annotated[
 TransactionalBenchmarkServiceDependency = Annotated[
     BenchmarkService, Depends(get_transactional_benchmark_service)
 ]
+BenchmarkComparisonServiceDependency = Annotated[BenchmarkComparisonService, Depends(get_benchmark_comparison_service)]
+TransactionalBenchmarkComparisonServiceDependency = Annotated[BenchmarkComparisonService, Depends(get_transactional_benchmark_comparison_service)]
 DatasetServiceDependency = Annotated[DatasetService, Depends(get_dataset_service)]
 TransactionalDatasetServiceDependency = Annotated[
     DatasetService, Depends(get_transactional_dataset_service)

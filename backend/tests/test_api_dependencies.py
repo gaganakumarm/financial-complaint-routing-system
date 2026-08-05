@@ -14,17 +14,25 @@ import app.api as api
 from app.api import (
     AccessToken,
     AuthServiceDependency,
+    BenchmarkComparisonRepositoryDependency,
+    BenchmarkComparisonServiceDependency,
     CurrentActiveUser,
     CurrentUser,
     DatabaseSession,
     TransactionalAuthServiceDependency,
+    TransactionalBenchmarkComparisonRepositoryDependency,
+    TransactionalBenchmarkComparisonServiceDependency,
     TransactionalDatabaseSession,
     TransactionalUserRepositoryDependency,
     UserRepositoryDependency,
     get_auth_service,
+    get_benchmark_comparison_repository,
+    get_benchmark_comparison_service,
     get_current_active_user,
     get_current_user,
     get_transactional_auth_service,
+    get_transactional_benchmark_comparison_repository,
+    get_transactional_benchmark_comparison_service,
     get_transactional_session,
     get_transactional_user_repository,
     get_user_repository,
@@ -34,9 +42,10 @@ from app.db.engine import get_engine
 from app.db.session import get_session_factory
 from app.main import app as production_app
 from app.models import User
-from app.repositories import UserRepository
+from app.repositories import BenchmarkComparisonRepository, BenchmarkResultRepository, UserRepository
 from app.services import (
     AuthService,
+    BenchmarkComparisonService,
     InactiveUserError,
     InvalidCredentialsError,
     UserNotFoundError,
@@ -44,6 +53,11 @@ from app.services import (
 
 
 EXPECTED_EXPORTS = {
+    "BenchmarkComparisonRepositoryDependency", "BenchmarkComparisonServiceDependency",
+    "TransactionalBenchmarkComparisonRepositoryDependency", "TransactionalBenchmarkComparisonServiceDependency",
+    "get_benchmark_comparison_repository", "get_transactional_benchmark_comparison_repository",
+    "get_benchmark_comparison_service", "get_transactional_benchmark_comparison_service",
+    "benchmark_comparisons_router",
     "DatasetExampleRepositoryDependency", "TransactionalDatasetExampleRepositoryDependency",
     "DatasetExampleServiceDependency", "TransactionalDatasetExampleServiceDependency",
     "get_dataset_example_repository", "get_transactional_dataset_example_repository",
@@ -235,6 +249,23 @@ def test_auth_service_dependency_uses_exact_repository_and_is_fresh() -> None:
     assert second._user_repository is repository
     assert second is not first
     assert repository.mock_calls == []
+
+
+@pytest.mark.anyio
+async def test_benchmark_comparison_dependencies_share_the_injected_session() -> None:
+    session = MagicMock(spec=AsyncSession)
+    read_repository = await get_benchmark_comparison_repository(session)
+    transactional_repository = await get_transactional_benchmark_comparison_repository(session)
+    assert isinstance(read_repository, BenchmarkComparisonRepository)
+    assert read_repository.session is session and transactional_repository.session is session
+    result_repository = BenchmarkResultRepository(session)
+    read_service = get_benchmark_comparison_service(read_repository, result_repository)
+    transactional_service = get_transactional_benchmark_comparison_service(transactional_repository, result_repository)
+    assert isinstance(read_service, BenchmarkComparisonService)
+    assert read_service._comparisons is read_repository and read_service._results is result_repository
+    assert transactional_service._comparisons is transactional_repository and transactional_service._results is result_repository
+    for method in ("commit", "rollback", "begin", "flush", "refresh", "execute"):
+        getattr(session, method).assert_not_called()
 
 
 @pytest.mark.anyio

@@ -417,8 +417,17 @@ def test_exact_package_and_api_exports() -> None:
         "get_transactional_dataset_example_repository",
         "get_dataset_example_service",
         "get_transactional_dataset_example_service",
-        "dataset_examples_router",
-    }
+            "dataset_examples_router",
+            "BenchmarkComparisonRepositoryDependency",
+            "BenchmarkComparisonServiceDependency",
+            "TransactionalBenchmarkComparisonRepositoryDependency",
+            "TransactionalBenchmarkComparisonServiceDependency",
+            "get_benchmark_comparison_repository",
+            "get_transactional_benchmark_comparison_repository",
+            "get_benchmark_comparison_service",
+            "get_transactional_benchmark_comparison_service",
+            "benchmark_comparisons_router",
+        }
 
 
 def test_authorization_import_has_no_side_effects_or_production_routes() -> None:
@@ -445,7 +454,9 @@ def test_authorization_import_has_no_side_effects_or_production_routes() -> None
         "/api/benchmarks/datasets/{dataset_version_id}/experiments",
         "/api/benchmarks/experiments/{experiment_id}/results",
         "/api/benchmarks/experiments/{experiment_id}",
-        "/api/benchmarks/results/{result_id}",
+            "/api/benchmarks/results/{result_id}",
+            "/api/benchmark-comparisons",
+            "/api/benchmark-comparisons/{comparison_id}",
         "/api/predictions/complaints/{complaint_id}/run",
         "/api/predictions/complaints/{complaint_id}",
         "/api/predictions/{prediction_id}",

@@ -40,6 +40,13 @@ from app.services import (
 
 
 SCHEMA_EXPORTS = {
+    "BenchmarkComparisonCreateRequest",
+    "BenchmarkComparisonExperimentResponse",
+    "BenchmarkComparisonListResponse",
+    "BenchmarkComparisonMemberResponse",
+    "BenchmarkComparisonModelVersionResponse",
+    "BenchmarkComparisonResponse",
+    "BenchmarkComparisonResultResponse",
     "DatasetExampleCreateItem", "DatasetExampleBatchCreateRequest",
     "DatasetExampleBatchCreateResponse", "DatasetExampleListResponse",
     "DatasetExampleResponse",

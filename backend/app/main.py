@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from app.api.routes import (
     auth_router,
     benchmarks_router,
+    benchmark_comparisons_router,
     complaints_router,
     datasets_router,
     dataset_examples_router,
@@ -26,6 +27,7 @@ def create_app(settings: Settings) -> FastAPI:
     application.state.settings = settings
     application.include_router(auth_router, prefix=settings.api_prefix)
     application.include_router(benchmarks_router, prefix=settings.api_prefix)
+    application.include_router(benchmark_comparisons_router, prefix=settings.api_prefix)
     application.include_router(complaints_router, prefix=settings.api_prefix)
     application.include_router(datasets_router, prefix=settings.api_prefix)
     application.include_router(dataset_examples_router, prefix=settings.api_prefix)
