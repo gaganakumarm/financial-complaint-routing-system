@@ -21,6 +21,7 @@ from app.models.dataset_example import DatasetExample
 from app.models.dataset_version import DatasetSplit, DatasetVersion
 from app.models.model_version import ModelType, ModelVersion
 from app.models.model_promotion_decision import ModelPromotionDecision, ModelPromotionStatus
+from app.models.deployment_candidate import DeploymentCandidate, DeploymentCandidateStatus
 from app.models.prediction import Prediction
 from app.models.review import Review, ReviewOutcome
 from app.models.role import Role
@@ -48,6 +49,8 @@ __all__ = [
     "ModelVersion",
     "ModelPromotionDecision",
     "ModelPromotionStatus",
+    "DeploymentCandidate",
+    "DeploymentCandidateStatus",
     "Prediction",
     "Review",
     "ReviewOutcome",

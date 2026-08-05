@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from app.models.benchmark_result import BenchmarkResult
     from app.models.prediction import Prediction
     from app.models.model_promotion_decision import ModelPromotionDecision
+    from app.models.deployment_candidate import DeploymentCandidate
 
 
 class ModelType(StrEnum):
@@ -124,3 +125,4 @@ class ModelVersion(UUIDPrimaryKeyMixin, Base):
     model_promotion_decisions: Mapped[list[ModelPromotionDecision]] = relationship(
         back_populates="selected_model_version"
     )
+    deployment_candidates: Mapped[list[DeploymentCandidate]] = relationship(back_populates="model_version")

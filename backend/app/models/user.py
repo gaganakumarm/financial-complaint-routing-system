@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from app.models.role import Role
     from app.models.review import Review
     from app.models.model_promotion_decision import ModelPromotionDecision
+    from app.models.deployment_candidate import DeploymentCandidate
 
 
 class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -93,3 +94,4 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     created_benchmark_comparisons: Mapped[list[BenchmarkComparison]] = relationship(back_populates="created_by_user", foreign_keys="BenchmarkComparison.created_by_user_id")
     requested_model_promotions: Mapped[list[ModelPromotionDecision]] = relationship(back_populates="requested_by_user", foreign_keys="ModelPromotionDecision.requested_by_user_id")
     reviewed_model_promotions: Mapped[list[ModelPromotionDecision]] = relationship(back_populates="reviewed_by_user", foreign_keys="ModelPromotionDecision.reviewed_by_user_id")
+    registered_deployment_candidates: Mapped[list[DeploymentCandidate]] = relationship(back_populates="registered_by_user", foreign_keys="DeploymentCandidate.registered_by_user_id")

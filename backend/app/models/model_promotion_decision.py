@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from app.models.benchmark_result import BenchmarkResult
     from app.models.model_version import ModelVersion
     from app.models.user import User
+    from app.models.deployment_candidate import DeploymentCandidate
 
 
 class ModelPromotionStatus(StrEnum):
@@ -103,3 +104,4 @@ class ModelPromotionDecision(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     selected_model_version: Mapped[ModelVersion] = relationship(back_populates="model_promotion_decisions")
     requested_by_user: Mapped[User] = relationship(back_populates="requested_model_promotions", foreign_keys=[requested_by_user_id])
     reviewed_by_user: Mapped[User | None] = relationship(back_populates="reviewed_model_promotions", foreign_keys=[reviewed_by_user_id])
+    deployment_candidate: Mapped[DeploymentCandidate | None] = relationship(back_populates="model_promotion_decision", uselist=False)

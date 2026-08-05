@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from app.models.benchmark_experiment import BenchmarkExperiment
     from app.models.model_version import ModelVersion
     from app.models.model_promotion_decision import ModelPromotionDecision
+    from app.models.deployment_candidate import DeploymentCandidate
 
 
 class BenchmarkResult(UUIDPrimaryKeyMixin, Base):
@@ -152,3 +153,4 @@ class BenchmarkResult(UUIDPrimaryKeyMixin, Base):
     comparison_members: Mapped[list[BenchmarkComparisonMember]] = relationship(back_populates="benchmark_result")
     winning_comparisons: Mapped[list[BenchmarkComparison]] = relationship(back_populates="winner_result", foreign_keys="BenchmarkComparison.winner_result_id")
     model_promotion_decisions: Mapped[list[ModelPromotionDecision]] = relationship(back_populates="selected_benchmark_result")
+    deployment_candidates: Mapped[list[DeploymentCandidate]] = relationship(back_populates="benchmark_result")
