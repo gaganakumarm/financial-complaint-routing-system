@@ -22,6 +22,7 @@ from app.repositories import (
     DepartmentRepository,
     ModelVersionRepository,
     ModelPromotionRepository,
+    DeploymentCandidateRepository,
     PredictionRepository,
     ReviewRepository,
     UserRepository,
@@ -40,6 +41,7 @@ from app.services import (
     PredictionService,
     ReviewService,
     ModelPromotionService,
+    DeploymentCandidateService,
     UserNotFoundError,
 )
 
@@ -205,6 +207,18 @@ async def get_transactional_model_promotion_repository(
     return ModelPromotionRepository(session)
 
 
+async def get_deployment_candidate_repository(
+    session: DatabaseSession,
+) -> DeploymentCandidateRepository:
+    return DeploymentCandidateRepository(session)
+
+
+async def get_transactional_deployment_candidate_repository(
+    session: TransactionalDatabaseSession,
+) -> DeploymentCandidateRepository:
+    return DeploymentCandidateRepository(session)
+
+
 ComplaintRepositoryDependency = Annotated[
     ComplaintRepository,
     Depends(get_complaint_repository),
@@ -260,6 +274,8 @@ BenchmarkComparisonRepositoryDependency = Annotated[BenchmarkComparisonRepositor
 TransactionalBenchmarkComparisonRepositoryDependency = Annotated[BenchmarkComparisonRepository, Depends(get_transactional_benchmark_comparison_repository)]
 ModelPromotionRepositoryDependency = Annotated[ModelPromotionRepository, Depends(get_model_promotion_repository)]
 TransactionalModelPromotionRepositoryDependency = Annotated[ModelPromotionRepository, Depends(get_transactional_model_promotion_repository)]
+DeploymentCandidateRepositoryDependency = Annotated[DeploymentCandidateRepository, Depends(get_deployment_candidate_repository)]
+TransactionalDeploymentCandidateRepositoryDependency = Annotated[DeploymentCandidateRepository, Depends(get_transactional_deployment_candidate_repository)]
 
 
 def get_complaint_service(
@@ -365,6 +381,20 @@ def get_transactional_model_promotion_service(
     comparison_repository: TransactionalBenchmarkComparisonRepositoryDependency,
 ) -> ModelPromotionService:
     return ModelPromotionService(promotion_repository, comparison_repository)
+
+
+def get_deployment_candidate_service(
+    candidate_repository: DeploymentCandidateRepositoryDependency,
+    promotion_repository: ModelPromotionRepositoryDependency,
+) -> DeploymentCandidateService:
+    return DeploymentCandidateService(candidate_repository, promotion_repository)
+
+
+def get_transactional_deployment_candidate_service(
+    candidate_repository: TransactionalDeploymentCandidateRepositoryDependency,
+    promotion_repository: TransactionalModelPromotionRepositoryDependency,
+) -> DeploymentCandidateService:
+    return DeploymentCandidateService(candidate_repository, promotion_repository)
 
 
 def get_dataset_service(
@@ -517,6 +547,8 @@ BenchmarkComparisonServiceDependency = Annotated[BenchmarkComparisonService, Dep
 TransactionalBenchmarkComparisonServiceDependency = Annotated[BenchmarkComparisonService, Depends(get_transactional_benchmark_comparison_service)]
 ModelPromotionServiceDependency = Annotated[ModelPromotionService, Depends(get_model_promotion_service)]
 TransactionalModelPromotionServiceDependency = Annotated[ModelPromotionService, Depends(get_transactional_model_promotion_service)]
+DeploymentCandidateServiceDependency = Annotated[DeploymentCandidateService, Depends(get_deployment_candidate_service)]
+TransactionalDeploymentCandidateServiceDependency = Annotated[DeploymentCandidateService, Depends(get_transactional_deployment_candidate_service)]
 DatasetServiceDependency = Annotated[DatasetService, Depends(get_dataset_service)]
 TransactionalDatasetServiceDependency = Annotated[
     DatasetService, Depends(get_transactional_dataset_service)

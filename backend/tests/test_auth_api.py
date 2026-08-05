@@ -123,7 +123,19 @@ def _app_with_service(service: MagicMock):
 def test_schema_package_exports_are_exact() -> None:
     import app.schemas as schemas
 
-    assert set(schemas.__all__) == SCHEMA_EXPORTS
+    assert set(schemas.__all__) == SCHEMA_EXPORTS | {
+        "DeploymentCandidateActivateRequest",
+        "DeploymentCandidateBenchmarkResultResponse",
+        "DeploymentCandidateCreateRequest",
+        "DeploymentCandidateListResponse",
+        "DeploymentCandidateModelVersionResponse",
+        "DeploymentCandidatePromotionResponse",
+        "DeploymentCandidateRejectRequest",
+        "DeploymentCandidateResponse",
+        "DeploymentCandidateRetireRequest",
+        "DeploymentCandidateStageRequest",
+        "DeploymentCandidateUserResponse",
+    }
     assert auth_router.prefix == "/auth"
 
 

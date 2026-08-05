@@ -18,6 +18,7 @@ class DuplicateDeploymentCandidateError(DeploymentCandidateServiceError): pass
 class InvalidDeploymentCandidateError(DeploymentCandidateServiceError): pass
 class DeploymentCandidateConsistencyError(DeploymentCandidateServiceError): pass
 class DeploymentCandidateStateConflictError(DeploymentCandidateServiceError): pass
+class ActiveDeploymentCandidateConflictError(DeploymentCandidateServiceError): pass
 class DeploymentCandidatePersistenceError(DeploymentCandidateServiceError): pass
 
 
@@ -31,24 +32,28 @@ class DeploymentCandidateCreateInput:
 @dataclass(frozen=True, slots=True)
 class DeploymentCandidateStageInput:
     candidate_id: UUID
-    notes: str | None = None
+    staged_by_user_id: UUID
+    note: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
 class DeploymentCandidateActivateInput:
     candidate_id: UUID
-    notes: str | None = None
+    activated_by_user_id: UUID
+    note: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
 class DeploymentCandidateRetireInput:
     candidate_id: UUID
+    retired_by_user_id: UUID
     retirement_reason: str
 
 
 @dataclass(frozen=True, slots=True)
 class DeploymentCandidateRejectInput:
     candidate_id: UUID
+    rejected_by_user_id: UUID
     rejection_reason: str
 
 
@@ -84,7 +89,7 @@ class DeploymentCandidateService:
 
     async def stage_candidate(self, value: DeploymentCandidateStageInput) -> DeploymentCandidate:
         if not isinstance(value, DeploymentCandidateStageInput): raise InvalidDeploymentCandidateError(_INVALID)
-        self._uuids(value.candidate_id); notes = self._optional_text(value.notes)
+        self._uuids(value.candidate_id, value.staged_by_user_id); notes = self._optional_text(value.note)
         candidate = await self._load(value.candidate_id)
         self._require_status(candidate, DeploymentCandidateStatus.CANDIDATE)
         self._validate_consistency(candidate)
@@ -94,7 +99,7 @@ class DeploymentCandidateService:
 
     async def activate_candidate(self, value: DeploymentCandidateActivateInput) -> DeploymentCandidate:
         if not isinstance(value, DeploymentCandidateActivateInput): raise InvalidDeploymentCandidateError(_INVALID)
-        self._uuids(value.candidate_id); notes = self._optional_text(value.notes)
+        self._uuids(value.candidate_id, value.activated_by_user_id); notes = self._optional_text(value.note)
         candidate = await self._load(value.candidate_id)
         self._require_status(candidate, DeploymentCandidateStatus.STAGED)
         self._validate_consistency(candidate)
@@ -111,7 +116,7 @@ class DeploymentCandidateService:
 
     async def retire_candidate(self, value: DeploymentCandidateRetireInput) -> DeploymentCandidate:
         if not isinstance(value, DeploymentCandidateRetireInput): raise InvalidDeploymentCandidateError(_INVALID)
-        self._uuids(value.candidate_id); reason = self._required_text(value.retirement_reason)
+        self._uuids(value.candidate_id, value.retired_by_user_id); reason = self._required_text(value.retirement_reason)
         candidate = await self._load(value.candidate_id)
         if candidate.status not in (DeploymentCandidateStatus.STAGED, DeploymentCandidateStatus.ACTIVE):
             raise DeploymentCandidateStateConflictError("Deployment candidate cannot be retired from its current state.")
@@ -121,7 +126,7 @@ class DeploymentCandidateService:
 
     async def reject_candidate(self, value: DeploymentCandidateRejectInput) -> DeploymentCandidate:
         if not isinstance(value, DeploymentCandidateRejectInput): raise InvalidDeploymentCandidateError(_INVALID)
-        self._uuids(value.candidate_id); reason = self._required_text(value.rejection_reason)
+        self._uuids(value.candidate_id, value.rejected_by_user_id); reason = self._required_text(value.rejection_reason)
         candidate = await self._load(value.candidate_id)
         if candidate.status not in (DeploymentCandidateStatus.CANDIDATE, DeploymentCandidateStatus.STAGED):
             raise DeploymentCandidateStateConflictError("Deployment candidate cannot be rejected from its current state.")
@@ -209,7 +214,7 @@ class DeploymentCandidateService:
 
 
 __all__ = [
-    "DeploymentCandidateActivateInput", "DeploymentCandidateConsistencyError",
+    "ActiveDeploymentCandidateConflictError", "DeploymentCandidateActivateInput", "DeploymentCandidateConsistencyError",
     "DeploymentCandidateCreateInput", "DeploymentCandidateNotFoundError",
     "DeploymentCandidatePersistenceError", "DeploymentCandidateRejectInput",
     "DeploymentCandidateRetireInput", "DeploymentCandidateService",

@@ -12,6 +12,7 @@ from app.api.routes import (
     predictions_router,
     reviews_router,
     model_promotions_router,
+    deployment_candidates_router,
 )
 from app.core.config import Settings, get_settings
 
@@ -35,6 +36,7 @@ def create_app(settings: Settings) -> FastAPI:
     application.include_router(predictions_router, prefix=settings.api_prefix)
     application.include_router(reviews_router, prefix=settings.api_prefix)
     application.include_router(model_promotions_router, prefix=settings.api_prefix)
+    application.include_router(deployment_candidates_router, prefix=settings.api_prefix)
 
     @application.get("/health")
     async def health() -> dict[str, str]:

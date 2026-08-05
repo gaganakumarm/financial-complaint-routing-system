@@ -62,6 +62,11 @@ from app.services import (
 
 
 EXPECTED_EXPORTS = {
+    "DeploymentCandidateRepositoryDependency", "DeploymentCandidateServiceDependency",
+    "TransactionalDeploymentCandidateRepositoryDependency", "TransactionalDeploymentCandidateServiceDependency",
+    "get_deployment_candidate_repository", "get_transactional_deployment_candidate_repository",
+    "get_deployment_candidate_service", "get_transactional_deployment_candidate_service",
+    "deployment_candidates_router",
     "ModelPromotionRepositoryDependency", "ModelPromotionServiceDependency",
     "TransactionalModelPromotionRepositoryDependency", "TransactionalModelPromotionServiceDependency",
     "get_model_promotion_repository", "get_transactional_model_promotion_repository",
