@@ -131,6 +131,19 @@ def test_service_imports_exports_and_resource_isolation() -> None:
         "ReviewService",
         "ReviewServiceError",
     }
+    expected_benchmark_exports = {
+        "BenchmarkError",
+        "BenchmarkExecutionError",
+        "BenchmarkExperimentNotFoundError",
+        "BenchmarkPersistenceError",
+        "BenchmarkResultNotFoundError",
+        "BenchmarkService",
+        "DatasetVersionNotFoundError",
+        "DuplicateBenchmarkResultError",
+        "InvalidBenchmarkExampleError",
+        "InvalidBenchmarkPredictionError",
+        "ModelVersionNotFoundError",
+    }
     engine_cache_before = get_engine.cache_info()
     session_cache_before = get_session_factory.cache_info()
 
@@ -139,6 +152,7 @@ def test_service_imports_exports_and_resource_isolation() -> None:
         | expected_complaint_exports
         | expected_prediction_exports
         | expected_review_exports
+        | expected_benchmark_exports
     )
     assert issubclass(ComplaintServiceError, Exception)
     assert issubclass(AuthenticationError, Exception)

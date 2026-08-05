@@ -39,6 +39,19 @@ from app.services.review import (
     ReviewService,
     ReviewServiceError,
 )
+from app.services.benchmark import (
+    BenchmarkError,
+    BenchmarkExecutionError,
+    BenchmarkExperimentNotFoundError,
+    BenchmarkPersistenceError,
+    BenchmarkResultNotFoundError,
+    BenchmarkService,
+    DatasetVersionNotFoundError,
+    DuplicateBenchmarkResultError,
+    InvalidBenchmarkExampleError,
+    InvalidBenchmarkPredictionError,
+    ModelVersionNotFoundError,
+)
 
 __all__ = [
     "AuthenticationError",
@@ -72,4 +85,15 @@ __all__ = [
     "ReviewNotFoundError",
     "ReviewService",
     "ReviewServiceError",
+    "BenchmarkError",
+    "BenchmarkExecutionError",
+    "BenchmarkExperimentNotFoundError",
+    "BenchmarkPersistenceError",
+    "BenchmarkResultNotFoundError",
+    "BenchmarkService",
+    "DatasetVersionNotFoundError",
+    "DuplicateBenchmarkResultError",
+    "InvalidBenchmarkExampleError",
+    "InvalidBenchmarkPredictionError",
+    "ModelVersionNotFoundError",
 ]
