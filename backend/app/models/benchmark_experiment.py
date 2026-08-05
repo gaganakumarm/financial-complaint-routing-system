@@ -15,6 +15,8 @@ from app.db.base import Base
 from app.db.mixins import UUIDPrimaryKeyMixin, utc_now
 
 if TYPE_CHECKING:
+    from app.models.benchmark_comparison import BenchmarkComparison
+    from app.models.benchmark_comparison_member import BenchmarkComparisonMember
     from app.models.benchmark_result import BenchmarkResult
     from app.models.dataset_version import DatasetVersion
 
@@ -123,3 +125,5 @@ class BenchmarkExperiment(UUIDPrimaryKeyMixin, Base):
         back_populates="benchmark_experiments"
     )
     results: Mapped[list[BenchmarkResult]] = relationship(back_populates="experiment")
+    winning_comparisons: Mapped[list[BenchmarkComparison]] = relationship(back_populates="winner_experiment", foreign_keys="BenchmarkComparison.winner_experiment_id")
+    comparison_members: Mapped[list[BenchmarkComparisonMember]] = relationship(back_populates="benchmark_experiment")

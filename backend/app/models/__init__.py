@@ -6,6 +6,8 @@ from app.models.benchmark_experiment import (
     BenchmarkExperiment,
     BenchmarkExperimentStatus,
 )
+from app.models.benchmark_comparison import BenchmarkComparison
+from app.models.benchmark_comparison_member import BenchmarkComparisonMember
 from app.models.benchmark_result import BenchmarkResult
 from app.models.complaint import Complaint, ComplaintStatus, ComplaintUrgency
 from app.models.complaint_category import ComplaintCategory
@@ -25,6 +27,8 @@ from app.models.user import User
 __all__ = [
     "Base",
     "BenchmarkExperiment",
+    "BenchmarkComparison",
+    "BenchmarkComparisonMember",
     "BenchmarkExperimentStatus",
     "BenchmarkResult",
     "Complaint",

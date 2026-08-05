@@ -14,6 +14,7 @@ from app.db.base import Base
 from app.db.mixins import UUIDPrimaryKeyMixin, utc_now
 
 if TYPE_CHECKING:
+    from app.models.benchmark_comparison import BenchmarkComparison
     from app.models.benchmark_experiment import BenchmarkExperiment
     from app.models.dataset_example import DatasetExample
 
@@ -91,3 +92,4 @@ class DatasetVersion(UUIDPrimaryKeyMixin, Base):
         back_populates="dataset_version"
     )
     examples: Mapped[list[DatasetExample]] = relationship(back_populates="dataset_version")
+    benchmark_comparisons: Mapped[list[BenchmarkComparison]] = relationship(back_populates="dataset_version")

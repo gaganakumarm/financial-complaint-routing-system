@@ -33,6 +33,8 @@ EXPECTED_TABLES = {
     "dataset_examples",
     "benchmark_experiments",
     "benchmark_results",
+    "benchmark_comparisons",
+    "benchmark_comparison_members",
 }
 
 

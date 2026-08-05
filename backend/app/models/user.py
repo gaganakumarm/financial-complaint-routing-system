@@ -24,6 +24,7 @@ from app.db.base import Base
 from app.db.mixins import TimestampMixin, UUIDPrimaryKeyMixin
 
 if TYPE_CHECKING:
+    from app.models.benchmark_comparison import BenchmarkComparison
     from app.models.complaint import Complaint
     from app.models.complaint_status_history import ComplaintStatusHistory
     from app.models.role import Role
@@ -88,3 +89,4 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         foreign_keys="ComplaintStatusHistory.changed_by_user_id",
     )
     reviews_performed: Mapped[list[Review]] = relationship(back_populates="reviewer")
+    created_benchmark_comparisons: Mapped[list[BenchmarkComparison]] = relationship(back_populates="created_by_user", foreign_keys="BenchmarkComparison.created_by_user_id")
