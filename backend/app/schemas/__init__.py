@@ -14,6 +14,14 @@ from app.schemas.complaint import (
     ComplaintListResponse,
     ComplaintResponse,
 )
+from app.schemas.review import (
+    ReviewActionRequest,
+    ReviewClaimResponse,
+    ReviewCorrectionRequest,
+    ReviewQueueItemResponse,
+    ReviewQueueResponse,
+    ReviewResponse,
+)
 
 __all__ = [
     "ErrorResponse",
@@ -26,4 +34,10 @@ __all__ = [
     "ComplaintCreateResponse",
     "ComplaintListResponse",
     "ComplaintResponse",
+    "ReviewActionRequest",
+    "ReviewClaimResponse",
+    "ReviewCorrectionRequest",
+    "ReviewQueueItemResponse",
+    "ReviewQueueResponse",
+    "ReviewResponse",
 ]

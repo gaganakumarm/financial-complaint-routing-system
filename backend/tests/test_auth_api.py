@@ -50,6 +50,12 @@ SCHEMA_EXPORTS = {
     "RegistrationResponse",
     "TokenResponse",
     "UserResponse",
+    "ReviewActionRequest",
+    "ReviewClaimResponse",
+    "ReviewCorrectionRequest",
+    "ReviewQueueItemResponse",
+    "ReviewQueueResponse",
+    "ReviewResponse",
 }
 
 
