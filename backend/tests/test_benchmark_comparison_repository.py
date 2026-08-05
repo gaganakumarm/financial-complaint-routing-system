@@ -2,7 +2,7 @@
 
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 
@@ -57,13 +57,45 @@ async def test_get_with_members_loads_relationships_and_orders_members() -> None
 
 @pytest.mark.anyio
 async def test_list_is_deterministic_and_validates_pagination() -> None:
-    session = MagicMock(); session.execute = AsyncMock(return_value=query_result())
+    comparison = SimpleNamespace(
+        members=[
+            SimpleNamespace(rank=2, id=UUID(int=2)),
+            SimpleNamespace(rank=1, id=UUID(int=3)),
+            SimpleNamespace(rank=1, id=UUID(int=1)),
+        ]
+    )
+    session = MagicMock(); session.execute = AsyncMock(return_value=query_result(comparison))
+    session.add = MagicMock(); session.add_all = MagicMock()
+    session.commit = AsyncMock(); session.flush = AsyncMock(); session.refresh = AsyncMock()
     repository = BenchmarkComparisonRepository(session)
-    assert await repository.list_comparisons(offset=2, limit=7) == []
+    assert await repository.list_comparisons(offset=2, limit=7) == [comparison]
+    assert [(member.rank, member.id) for member in comparison.members] == [
+        (1, UUID(int=1)), (1, UUID(int=3)), (2, UUID(int=2))
+    ]
     statement = session.execute.await_args.args[0]
     assert len(statement._order_by_clauses) == 2
+    assert len(statement._with_options) == 2
+    assert statement.compile().params["param_1"] == 7
+    assert statement.compile().params["param_2"] == 2
+    session.add.assert_not_called(); session.add_all.assert_not_called()
+    session.commit.assert_not_awaited(); session.flush.assert_not_awaited(); session.refresh.assert_not_awaited()
     for offset, limit in [(-1, 1), (0, 0), (0, 501)]:
         with pytest.raises(ValueError): await repository.list_comparisons(offset=offset, limit=limit)
+
+
+@pytest.mark.anyio
+async def test_list_empty_result_and_relationship_graph_match_get() -> None:
+    session = MagicMock(); session.execute = AsyncMock(return_value=query_result())
+    repository = BenchmarkComparisonRepository(session)
+    assert await repository.list_comparisons() == []
+    list_statement = session.execute.await_args.args[0]
+    session.execute.return_value = query_result(scalar=None)
+    assert await repository.get_with_members(uuid4()) is None
+    get_statement = session.execute.await_args.args[0]
+    assert len(list_statement._with_options) == len(get_statement._with_options) == 2
+    assert [str(option) for option in list_statement._with_options] == [
+        str(option) for option in get_statement._with_options
+    ]
 
 
 @pytest.mark.anyio

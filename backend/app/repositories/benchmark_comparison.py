@@ -52,12 +52,24 @@ class BenchmarkComparisonRepository(BaseRepository[BenchmarkComparison]):
         self._validate_pagination(offset, limit)
         statement = (
             select(BenchmarkComparison)
+            .options(
+                selectinload(BenchmarkComparison.members)
+                .selectinload(BenchmarkComparisonMember.benchmark_result)
+                .selectinload(BenchmarkResult.experiment)
+                .selectinload(BenchmarkExperiment.dataset_version),
+                selectinload(BenchmarkComparison.members)
+                .selectinload(BenchmarkComparisonMember.benchmark_result)
+                .selectinload(BenchmarkResult.model_version),
+            )
             .order_by(BenchmarkComparison.created_at.desc(), BenchmarkComparison.id.desc())
             .offset(offset)
             .limit(limit)
         )
         result = await self.session.execute(statement)
-        return list(result.scalars().all())
+        comparisons = list(result.scalars().all())
+        for comparison in comparisons:
+            comparison.members.sort(key=lambda member: (member.rank, member.id))
+        return comparisons
 
     async def add_comparison(
         self, comparison: BenchmarkComparison
