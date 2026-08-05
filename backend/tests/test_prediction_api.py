@@ -136,4 +136,5 @@ def test_openapi_contract_has_safe_prediction_surface() -> None:
     assert "get" in paths["/api/predictions/{prediction_id}"]
     properties = schema["components"]["schemas"]["PredictionResponse"]["properties"]
     assert "raw_output" not in properties and "failure_message" not in properties
-    assert not any("upload" in path or "benchmark" in path for path in paths)
+    assert not any("upload" in path for path in paths)
+    assert not any("run" in path for path in paths if "benchmark" in path)

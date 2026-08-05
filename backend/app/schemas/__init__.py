@@ -28,6 +28,13 @@ from app.schemas.prediction import (
     PredictionRunRequest,
     PredictionRunResponse,
 )
+from app.schemas.benchmark import (
+    BenchmarkExperimentCreateRequest,
+    BenchmarkExperimentListResponse,
+    BenchmarkExperimentResponse,
+    BenchmarkResultListResponse,
+    BenchmarkResultResponse,
+)
 
 __all__ = [
     "ErrorResponse",
@@ -50,4 +57,9 @@ __all__ = [
     "PredictionResponse",
     "PredictionRunRequest",
     "PredictionRunResponse",
+    "BenchmarkExperimentCreateRequest",
+    "BenchmarkExperimentListResponse",
+    "BenchmarkExperimentResponse",
+    "BenchmarkResultListResponse",
+    "BenchmarkResultResponse",
 ]

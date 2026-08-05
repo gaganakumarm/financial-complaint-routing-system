@@ -40,6 +40,11 @@ from app.services import (
 
 
 SCHEMA_EXPORTS = {
+    "BenchmarkExperimentCreateRequest",
+    "BenchmarkExperimentListResponse",
+    "BenchmarkExperimentResponse",
+    "BenchmarkResultListResponse",
+    "BenchmarkResultResponse",
     "ComplaintCreateRequest",
     "ComplaintCreateResponse",
     "ComplaintListResponse",

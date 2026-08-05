@@ -7,9 +7,14 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db_session, get_transactional_session
-from app.models import User
+from app.models import ModelType, ModelVersion, User
+from app.benchmark import BenchmarkPredictor, ConfiguredBenchmarkPredictor
+from app.benchmark.types import BenchmarkPredictorFactory
 from app.repositories import (
     ComplaintRepository,
+    BenchmarkExperimentRepository,
+    BenchmarkResultRepository,
+    DatasetVersionRepository,
     ModelVersionRepository,
     PredictionRepository,
     ReviewRepository,
@@ -18,6 +23,8 @@ from app.repositories import (
 from app.prediction import ComplaintPredictor, ConfiguredBaselinePredictor
 from app.services import (
     AuthService,
+    BenchmarkExecutionError,
+    BenchmarkService,
     ComplaintService,
     InactiveUserError,
     InvalidCredentialsError,
@@ -98,6 +105,40 @@ async def get_transactional_model_version_repository(
     return ModelVersionRepository(session)
 
 
+async def get_dataset_version_repository(session: DatabaseSession) -> DatasetVersionRepository:
+    return DatasetVersionRepository(session)
+
+
+async def get_transactional_dataset_version_repository(
+    session: TransactionalDatabaseSession,
+) -> DatasetVersionRepository:
+    return DatasetVersionRepository(session)
+
+
+async def get_benchmark_experiment_repository(
+    session: DatabaseSession,
+) -> BenchmarkExperimentRepository:
+    return BenchmarkExperimentRepository(session)
+
+
+async def get_transactional_benchmark_experiment_repository(
+    session: TransactionalDatabaseSession,
+) -> BenchmarkExperimentRepository:
+    return BenchmarkExperimentRepository(session)
+
+
+async def get_benchmark_result_repository(
+    session: DatabaseSession,
+) -> BenchmarkResultRepository:
+    return BenchmarkResultRepository(session)
+
+
+async def get_transactional_benchmark_result_repository(
+    session: TransactionalDatabaseSession,
+) -> BenchmarkResultRepository:
+    return BenchmarkResultRepository(session)
+
+
 ComplaintRepositoryDependency = Annotated[
     ComplaintRepository,
     Depends(get_complaint_repository),
@@ -122,6 +163,25 @@ ModelVersionRepositoryDependency = Annotated[
 TransactionalModelVersionRepositoryDependency = Annotated[
     ModelVersionRepository, Depends(get_transactional_model_version_repository)
 ]
+DatasetVersionRepositoryDependency = Annotated[
+    DatasetVersionRepository, Depends(get_dataset_version_repository)
+]
+TransactionalDatasetVersionRepositoryDependency = Annotated[
+    DatasetVersionRepository, Depends(get_transactional_dataset_version_repository)
+]
+BenchmarkExperimentRepositoryDependency = Annotated[
+    BenchmarkExperimentRepository, Depends(get_benchmark_experiment_repository)
+]
+TransactionalBenchmarkExperimentRepositoryDependency = Annotated[
+    BenchmarkExperimentRepository,
+    Depends(get_transactional_benchmark_experiment_repository),
+]
+BenchmarkResultRepositoryDependency = Annotated[
+    BenchmarkResultRepository, Depends(get_benchmark_result_repository)
+]
+TransactionalBenchmarkResultRepositoryDependency = Annotated[
+    BenchmarkResultRepository, Depends(get_transactional_benchmark_result_repository)
+]
 
 
 def get_complaint_service(
@@ -145,6 +205,52 @@ def get_complaint_predictor() -> ComplaintPredictor:
 ComplaintPredictorDependency = Annotated[
     ComplaintPredictor, Depends(get_complaint_predictor)
 ]
+
+
+def get_benchmark_predictor_factory() -> BenchmarkPredictorFactory:
+    def factory(model_version: ModelVersion) -> BenchmarkPredictor:
+        if model_version.model_type is not ModelType.TFIDF_CLASSIFIER:
+            raise BenchmarkExecutionError("Benchmark execution failed.")
+        return ConfiguredBenchmarkPredictor()
+
+    return factory
+
+
+BenchmarkPredictorFactoryDependency = Annotated[
+    BenchmarkPredictorFactory, Depends(get_benchmark_predictor_factory)
+]
+
+
+def get_benchmark_service(
+    dataset_version_repository: DatasetVersionRepositoryDependency,
+    benchmark_experiment_repository: BenchmarkExperimentRepositoryDependency,
+    benchmark_result_repository: BenchmarkResultRepositoryDependency,
+    model_version_repository: ModelVersionRepositoryDependency,
+    predictor_factory: BenchmarkPredictorFactoryDependency,
+) -> BenchmarkService:
+    return BenchmarkService(
+        dataset_version_repository=dataset_version_repository,
+        benchmark_experiment_repository=benchmark_experiment_repository,
+        benchmark_result_repository=benchmark_result_repository,
+        model_version_repository=model_version_repository,
+        predictor_factory=predictor_factory,
+    )
+
+
+def get_transactional_benchmark_service(
+    dataset_version_repository: TransactionalDatasetVersionRepositoryDependency,
+    benchmark_experiment_repository: TransactionalBenchmarkExperimentRepositoryDependency,
+    benchmark_result_repository: TransactionalBenchmarkResultRepositoryDependency,
+    model_version_repository: TransactionalModelVersionRepositoryDependency,
+    predictor_factory: BenchmarkPredictorFactoryDependency,
+) -> BenchmarkService:
+    return BenchmarkService(
+        dataset_version_repository=dataset_version_repository,
+        benchmark_experiment_repository=benchmark_experiment_repository,
+        benchmark_result_repository=benchmark_result_repository,
+        model_version_repository=model_version_repository,
+        predictor_factory=predictor_factory,
+    )
 
 
 def get_prediction_service(
@@ -266,6 +372,12 @@ PredictionServiceDependency = Annotated[
 ]
 TransactionalPredictionServiceDependency = Annotated[
     PredictionService, Depends(get_transactional_prediction_service)
+]
+BenchmarkServiceDependency = Annotated[
+    BenchmarkService, Depends(get_benchmark_service)
+]
+TransactionalBenchmarkServiceDependency = Annotated[
+    BenchmarkService, Depends(get_transactional_benchmark_service)
 ]
 ReviewServiceDependency = Annotated[ReviewService, Depends(get_review_service)]
 TransactionalReviewServiceDependency = Annotated[
