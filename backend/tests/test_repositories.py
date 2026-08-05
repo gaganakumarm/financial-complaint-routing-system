@@ -7,11 +7,14 @@ import pytest
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.dependencies import get_current_active_user
+from app.authz import require_customer
 from app.models import (
     BenchmarkExperimentStatus,
     Complaint,
     ComplaintStatus,
     DatasetSplit,
+    Role,
     User,
 )
 from app.repositories import (
@@ -40,6 +43,12 @@ def make_session(*, rows=(), scalar=None, scalar_one=None):
     result.scalar_one.return_value = scalar_one
     session.execute.return_value = result
     return session, result
+
+
+def assert_role_is_eager_loaded(statement) -> None:
+    assert any(
+        "User.role" in str(option.path) for option in statement._with_options
+    )
 
 
 @pytest.mark.anyio
@@ -84,6 +93,24 @@ async def test_base_repository_rejects_invalid_pagination(offset: int, limit: in
 
 
 @pytest.mark.anyio
+async def test_user_repository_get_by_id_eager_loads_role_and_handles_missing() -> None:
+    user_id = uuid4()
+    session, result = make_session(scalar="user")
+    repository = UserRepository(session)
+
+    assert await repository.get_by_id(user_id) == "user"
+    lookup = session.execute.await_args.args[0]
+    assert_role_is_eager_loaded(lookup)
+    assert user_id in lookup.compile(dialect=postgresql.dialect()).params.values()
+
+    result.scalar_one_or_none.return_value = None
+    assert await repository.get_by_id(uuid4()) is None
+    assert not session.commit.called
+    assert not session.rollback.called
+    assert not session.begin.called
+
+
+@pytest.mark.anyio
 async def test_user_repository_email_queries_are_trimmed_and_case_insensitive() -> None:
     session, result = make_session(scalar="user", scalar_one=True)
     repository = UserRepository(session)
@@ -91,6 +118,7 @@ async def test_user_repository_email_queries_are_trimmed_and_case_insensitive() 
     lookup = session.execute.await_args_list[0].args[0]
     compiled = lookup.compile(dialect=postgresql.dialect())
     sql = str(compiled)
+    assert_role_is_eager_loaded(lookup)
     assert "lower(users.email) = lower(" in sql
     assert "Person@Example.com" in compiled.params.values()
     result.scalar_one_or_none.assert_called_once()
@@ -103,6 +131,45 @@ async def test_user_repository_email_queries_are_trimmed_and_case_insensitive() 
     for method in (repository.get_by_email, repository.email_exists):
         with pytest.raises(ValueError):
             await method("   ")
+    assert not session.commit.called
+    assert not session.rollback.called
+    assert not session.begin.called
+
+
+@pytest.mark.anyio
+async def test_repository_loaded_customer_passes_active_user_authorization_chain() -> None:
+    role = Role(
+        id=uuid4(),
+        name="customer",
+        display_name="Customer",
+        description=None,
+        is_active=True,
+    )
+    user = User(
+        id=uuid4(),
+        role_id=role.id,
+        email="customer@example.com",
+        password_hash="not-used",
+        full_name="Example Customer",
+        is_active=True,
+        email_verified=True,
+        role=role,
+    )
+    session, _ = make_session(scalar=user)
+
+    repository_user = await UserRepository(session).get_by_id(user.id)
+    lookup = session.execute.await_args.args[0]
+    assert_role_is_eager_loaded(lookup)
+    assert repository_user is not None
+    assert repository_user.__dict__["role"] is role
+
+    active_user = await get_current_active_user(repository_user)
+    authorized_user = await require_customer(active_user)
+
+    assert authorized_user is user
+    assert not session.commit.called
+    assert not session.rollback.called
+    assert not session.begin.called
 
 
 @pytest.mark.anyio
