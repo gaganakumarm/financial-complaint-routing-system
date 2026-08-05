@@ -40,6 +40,15 @@ from app.services import (
 
 
 SCHEMA_EXPORTS = {
+    "ModelPromotionBenchmarkResultResponse",
+    "ModelPromotionCancelRequest",
+    "ModelPromotionComparisonResponse",
+    "ModelPromotionCreateRequest",
+    "ModelPromotionListResponse",
+    "ModelPromotionModelVersionResponse",
+    "ModelPromotionResponse",
+    "ModelPromotionReviewRequest",
+    "ModelPromotionUserResponse",
     "BenchmarkComparisonCreateRequest",
     "BenchmarkComparisonExperimentResponse",
     "BenchmarkComparisonListResponse",

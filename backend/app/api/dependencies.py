@@ -21,6 +21,7 @@ from app.repositories import (
     ComplaintCategoryRepository,
     DepartmentRepository,
     ModelVersionRepository,
+    ModelPromotionRepository,
     PredictionRepository,
     ReviewRepository,
     UserRepository,
@@ -38,6 +39,7 @@ from app.services import (
     InvalidCredentialsError,
     PredictionService,
     ReviewService,
+    ModelPromotionService,
     UserNotFoundError,
 )
 
@@ -191,6 +193,18 @@ async def get_transactional_benchmark_comparison_repository(
     return BenchmarkComparisonRepository(session)
 
 
+async def get_model_promotion_repository(
+    session: DatabaseSession,
+) -> ModelPromotionRepository:
+    return ModelPromotionRepository(session)
+
+
+async def get_transactional_model_promotion_repository(
+    session: TransactionalDatabaseSession,
+) -> ModelPromotionRepository:
+    return ModelPromotionRepository(session)
+
+
 ComplaintRepositoryDependency = Annotated[
     ComplaintRepository,
     Depends(get_complaint_repository),
@@ -244,6 +258,8 @@ BenchmarkExampleResultRepositoryDependency = Annotated[BenchmarkExampleResultRep
 TransactionalBenchmarkExampleResultRepositoryDependency = Annotated[BenchmarkExampleResultRepository, Depends(get_transactional_benchmark_example_result_repository)]
 BenchmarkComparisonRepositoryDependency = Annotated[BenchmarkComparisonRepository, Depends(get_benchmark_comparison_repository)]
 TransactionalBenchmarkComparisonRepositoryDependency = Annotated[BenchmarkComparisonRepository, Depends(get_transactional_benchmark_comparison_repository)]
+ModelPromotionRepositoryDependency = Annotated[ModelPromotionRepository, Depends(get_model_promotion_repository)]
+TransactionalModelPromotionRepositoryDependency = Annotated[ModelPromotionRepository, Depends(get_transactional_model_promotion_repository)]
 
 
 def get_complaint_service(
@@ -335,6 +351,20 @@ def get_transactional_benchmark_comparison_service(
     result_repository: TransactionalBenchmarkResultRepositoryDependency,
 ) -> BenchmarkComparisonService:
     return BenchmarkComparisonService(comparison_repository, result_repository)
+
+
+def get_model_promotion_service(
+    promotion_repository: ModelPromotionRepositoryDependency,
+    comparison_repository: BenchmarkComparisonRepositoryDependency,
+) -> ModelPromotionService:
+    return ModelPromotionService(promotion_repository, comparison_repository)
+
+
+def get_transactional_model_promotion_service(
+    promotion_repository: TransactionalModelPromotionRepositoryDependency,
+    comparison_repository: TransactionalBenchmarkComparisonRepositoryDependency,
+) -> ModelPromotionService:
+    return ModelPromotionService(promotion_repository, comparison_repository)
 
 
 def get_dataset_service(
@@ -485,6 +515,8 @@ TransactionalBenchmarkServiceDependency = Annotated[
 ]
 BenchmarkComparisonServiceDependency = Annotated[BenchmarkComparisonService, Depends(get_benchmark_comparison_service)]
 TransactionalBenchmarkComparisonServiceDependency = Annotated[BenchmarkComparisonService, Depends(get_transactional_benchmark_comparison_service)]
+ModelPromotionServiceDependency = Annotated[ModelPromotionService, Depends(get_model_promotion_service)]
+TransactionalModelPromotionServiceDependency = Annotated[ModelPromotionService, Depends(get_transactional_model_promotion_service)]
 DatasetServiceDependency = Annotated[DatasetService, Depends(get_dataset_service)]
 TransactionalDatasetServiceDependency = Annotated[
     DatasetService, Depends(get_transactional_dataset_service)

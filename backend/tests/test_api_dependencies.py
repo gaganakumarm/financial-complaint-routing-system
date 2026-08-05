@@ -16,23 +16,31 @@ from app.api import (
     AuthServiceDependency,
     BenchmarkComparisonRepositoryDependency,
     BenchmarkComparisonServiceDependency,
+    ModelPromotionRepositoryDependency,
+    ModelPromotionServiceDependency,
     CurrentActiveUser,
     CurrentUser,
     DatabaseSession,
     TransactionalAuthServiceDependency,
     TransactionalBenchmarkComparisonRepositoryDependency,
     TransactionalBenchmarkComparisonServiceDependency,
+    TransactionalModelPromotionRepositoryDependency,
+    TransactionalModelPromotionServiceDependency,
     TransactionalDatabaseSession,
     TransactionalUserRepositoryDependency,
     UserRepositoryDependency,
     get_auth_service,
     get_benchmark_comparison_repository,
     get_benchmark_comparison_service,
+    get_model_promotion_repository,
+    get_model_promotion_service,
     get_current_active_user,
     get_current_user,
     get_transactional_auth_service,
     get_transactional_benchmark_comparison_repository,
     get_transactional_benchmark_comparison_service,
+    get_transactional_model_promotion_repository,
+    get_transactional_model_promotion_service,
     get_transactional_session,
     get_transactional_user_repository,
     get_user_repository,
@@ -42,10 +50,11 @@ from app.db.engine import get_engine
 from app.db.session import get_session_factory
 from app.main import app as production_app
 from app.models import User
-from app.repositories import BenchmarkComparisonRepository, BenchmarkResultRepository, UserRepository
+from app.repositories import BenchmarkComparisonRepository, BenchmarkResultRepository, ModelPromotionRepository, UserRepository
 from app.services import (
     AuthService,
     BenchmarkComparisonService,
+    ModelPromotionService,
     InactiveUserError,
     InvalidCredentialsError,
     UserNotFoundError,
@@ -53,6 +62,11 @@ from app.services import (
 
 
 EXPECTED_EXPORTS = {
+    "ModelPromotionRepositoryDependency", "ModelPromotionServiceDependency",
+    "TransactionalModelPromotionRepositoryDependency", "TransactionalModelPromotionServiceDependency",
+    "get_model_promotion_repository", "get_transactional_model_promotion_repository",
+    "get_model_promotion_service", "get_transactional_model_promotion_service",
+    "model_promotions_router",
     "BenchmarkComparisonRepositoryDependency", "BenchmarkComparisonServiceDependency",
     "TransactionalBenchmarkComparisonRepositoryDependency", "TransactionalBenchmarkComparisonServiceDependency",
     "get_benchmark_comparison_repository", "get_transactional_benchmark_comparison_repository",
@@ -264,6 +278,23 @@ async def test_benchmark_comparison_dependencies_share_the_injected_session() ->
     assert isinstance(read_service, BenchmarkComparisonService)
     assert read_service._comparisons is read_repository and read_service._results is result_repository
     assert transactional_service._comparisons is transactional_repository and transactional_service._results is result_repository
+    for method in ("commit", "rollback", "begin", "flush", "refresh", "execute"):
+        getattr(session, method).assert_not_called()
+
+
+@pytest.mark.anyio
+async def test_model_promotion_dependencies_share_the_injected_session() -> None:
+    session = MagicMock(spec=AsyncSession)
+    read_repository = await get_model_promotion_repository(session)
+    transactional_repository = await get_transactional_model_promotion_repository(session)
+    comparison_repository = BenchmarkComparisonRepository(session)
+    read_service = get_model_promotion_service(read_repository, comparison_repository)
+    transactional_service = get_transactional_model_promotion_service(transactional_repository, comparison_repository)
+    assert isinstance(read_repository, ModelPromotionRepository)
+    assert read_repository.session is session and transactional_repository.session is session
+    assert isinstance(read_service, ModelPromotionService)
+    assert read_service._promotions is read_repository and read_service._comparisons is comparison_repository
+    assert transactional_service._promotions is transactional_repository
     for method in ("commit", "rollback", "begin", "flush", "refresh", "execute"):
         getattr(session, method).assert_not_called()
 

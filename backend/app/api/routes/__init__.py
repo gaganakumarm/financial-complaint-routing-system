@@ -8,6 +8,7 @@ from app.api.routes.datasets import router as datasets_router
 from app.api.routes.dataset_examples import router as dataset_examples_router
 from app.api.routes.predictions import router as predictions_router
 from app.api.routes.reviews import router as reviews_router
+from app.api.routes.model_promotions import router as model_promotions_router
 
 __all__ = [
     "auth_router",
@@ -18,4 +19,5 @@ __all__ = [
     "dataset_examples_router",
     "predictions_router",
     "reviews_router",
+    "model_promotions_router",
 ]

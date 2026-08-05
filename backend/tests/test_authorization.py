@@ -426,8 +426,17 @@ def test_exact_package_and_api_exports() -> None:
             "get_transactional_benchmark_comparison_repository",
             "get_benchmark_comparison_service",
             "get_transactional_benchmark_comparison_service",
-            "benchmark_comparisons_router",
-        }
+                "benchmark_comparisons_router",
+                "ModelPromotionRepositoryDependency",
+                "ModelPromotionServiceDependency",
+                "TransactionalModelPromotionRepositoryDependency",
+                "TransactionalModelPromotionServiceDependency",
+                "get_model_promotion_repository",
+                "get_transactional_model_promotion_repository",
+                "get_model_promotion_service",
+                "get_transactional_model_promotion_service",
+                "model_promotions_router",
+            }
 
 
 def test_authorization_import_has_no_side_effects_or_production_routes() -> None:
@@ -456,7 +465,12 @@ def test_authorization_import_has_no_side_effects_or_production_routes() -> None
         "/api/benchmarks/experiments/{experiment_id}",
             "/api/benchmarks/results/{result_id}",
             "/api/benchmark-comparisons",
-            "/api/benchmark-comparisons/{comparison_id}",
+                "/api/benchmark-comparisons/{comparison_id}",
+                "/api/model-promotions",
+                "/api/model-promotions/{promotion_id}",
+                "/api/model-promotions/{promotion_id}/approve",
+                "/api/model-promotions/{promotion_id}/reject",
+                "/api/model-promotions/{promotion_id}/cancel",
         "/api/predictions/complaints/{complaint_id}/run",
         "/api/predictions/complaints/{complaint_id}",
         "/api/predictions/{prediction_id}",

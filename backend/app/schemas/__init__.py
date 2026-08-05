@@ -50,6 +50,17 @@ from app.schemas.benchmark_comparison import (
     BenchmarkComparisonResponse,
     BenchmarkComparisonResultResponse,
 )
+from app.schemas.model_promotion import (
+    ModelPromotionBenchmarkResultResponse,
+    ModelPromotionCancelRequest,
+    ModelPromotionComparisonResponse,
+    ModelPromotionCreateRequest,
+    ModelPromotionListResponse,
+    ModelPromotionModelVersionResponse,
+    ModelPromotionResponse,
+    ModelPromotionReviewRequest,
+    ModelPromotionUserResponse,
+)
 
 __all__ = [
     "ErrorResponse",
@@ -92,4 +103,13 @@ __all__ = [
     "BenchmarkComparisonModelVersionResponse",
     "BenchmarkComparisonResponse",
     "BenchmarkComparisonResultResponse",
+    "ModelPromotionBenchmarkResultResponse",
+    "ModelPromotionCancelRequest",
+    "ModelPromotionComparisonResponse",
+    "ModelPromotionCreateRequest",
+    "ModelPromotionListResponse",
+    "ModelPromotionModelVersionResponse",
+    "ModelPromotionResponse",
+    "ModelPromotionReviewRequest",
+    "ModelPromotionUserResponse",
 ]
