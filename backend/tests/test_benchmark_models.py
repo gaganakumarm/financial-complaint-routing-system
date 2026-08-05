@@ -22,6 +22,7 @@ EXPECTED_TABLES = {
     "complaint_status_history", "model_versions", "predictions", "reviews",
     "dataset_versions", "dataset_examples", "benchmark_experiments", "benchmark_results",
     "benchmark_comparisons", "benchmark_comparison_members",
+    "benchmark_example_results",
 }
 
 
@@ -117,6 +118,9 @@ def test_benchmark_result_schema() -> None:
         "cost_weighted_error", "structured_output_validity_rate",
         "average_inference_latency_ms", "throughput_per_second", "estimated_cost",
         "per_class_metrics", "additional_metrics", "created_at",
+        "total_error_cost", "exact_match_accuracy", "failed_prediction_count",
+        "category_accuracy", "department_accuracy", "urgency_accuracy",
+        "p95_inference_latency_ms",
     }
     assert "updated_at" not in table.c
     for column_name, target, constraint_name in (
@@ -151,6 +155,13 @@ def test_benchmark_result_schema() -> None:
         "ck_benchmark_results_latency_non_negative",
         "ck_benchmark_results_throughput_non_negative",
         "ck_benchmark_results_estimated_cost_non_negative",
+        "ck_benchmark_results_total_error_cost_non_negative",
+        "ck_benchmark_results_failed_prediction_count_range",
+        "ck_benchmark_results_exact_match_accuracy_range",
+        "ck_benchmark_results_category_accuracy_range",
+        "ck_benchmark_results_department_accuracy_range",
+        "ck_benchmark_results_urgency_accuracy_range",
+        "ck_benchmark_results_p95_latency_non_negative",
     }
     expected = {
         "uq_benchmark_results_experiment_model": ["benchmark_experiment_id", "model_version_id"],
@@ -182,13 +193,14 @@ def test_benchmark_relationships_work_in_memory() -> None:
 def test_benchmark_migration_operations(monkeypatch) -> None:
     revisions = list(ScriptDirectory.from_config(Config("alembic.ini")).walk_revisions())
     assert [(item.revision, item.down_revision) for item in revisions] == [
+        ("20260805_08", "20260805_07"),
         ("20260805_07", "20260805_06"),
         ("20260805_06", "20260804_05"),
         ("20260804_05", "20260804_04"), ("20260804_04", "20260804_03"),
         ("20260804_03", "20260804_02"), ("20260804_02", "20260803_01"),
         ("20260803_01", None),
     ]
-    module = revisions[2].module
+    module = revisions[3].module
     operations: list[tuple[str, str]] = []
     enum_operations: list[tuple[str, str]] = []
     monkeypatch.setattr(module.op, "get_bind", lambda: object())

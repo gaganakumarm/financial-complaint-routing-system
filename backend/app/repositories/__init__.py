@@ -4,6 +4,7 @@ from app.repositories.base import BaseRepository
 from app.repositories.benchmark import (
     BenchmarkExperimentRepository,
     BenchmarkResultRepository,
+    BenchmarkExampleResultRepository,
     DatasetVersionRepository,
 )
 from app.repositories.complaint import ComplaintRepository
@@ -19,6 +20,7 @@ __all__ = [
     "BaseRepository",
     "BenchmarkExperimentRepository",
     "BenchmarkResultRepository",
+    "BenchmarkExampleResultRepository",
     "ComplaintRepository",
     "ComplaintCategoryRepository",
     "DatasetExampleRepository",

@@ -77,6 +77,13 @@ class BenchmarkResultResponse(BaseModel):
     estimated_cost: Decimal | None
     per_class_metrics: dict[str, Any] | None
     additional_metrics: dict[str, Any] | None
+    total_error_cost: Decimal | None
+    exact_match_accuracy: Decimal | None
+    failed_prediction_count: int | None
+    category_accuracy: Decimal | None
+    department_accuracy: Decimal | None
+    urgency_accuracy: Decimal | None
+    p95_inference_latency_ms: int | None
     created_at: datetime
 
 

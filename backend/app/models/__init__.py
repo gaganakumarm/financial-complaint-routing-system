@@ -9,6 +9,7 @@ from app.models.benchmark_experiment import (
 from app.models.benchmark_comparison import BenchmarkComparison
 from app.models.benchmark_comparison_member import BenchmarkComparisonMember
 from app.models.benchmark_result import BenchmarkResult
+from app.models.benchmark_example_result import BenchmarkExampleResult
 from app.models.complaint import Complaint, ComplaintStatus, ComplaintUrgency
 from app.models.complaint_category import ComplaintCategory
 from app.models.complaint_status_history import (
@@ -31,6 +32,7 @@ __all__ = [
     "BenchmarkComparisonMember",
     "BenchmarkExperimentStatus",
     "BenchmarkResult",
+    "BenchmarkExampleResult",
     "Complaint",
     "ComplaintCategory",
     "ComplaintChangeSource",

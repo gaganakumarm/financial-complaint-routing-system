@@ -14,6 +14,7 @@ from app.repositories import (
     ComplaintRepository,
     BenchmarkExperimentRepository,
     BenchmarkResultRepository,
+    BenchmarkExampleResultRepository,
     DatasetVersionRepository,
     DatasetExampleRepository,
     ComplaintCategoryRepository,
@@ -168,6 +169,14 @@ async def get_transactional_benchmark_result_repository(
     return BenchmarkResultRepository(session)
 
 
+async def get_benchmark_example_result_repository(session: DatabaseSession) -> BenchmarkExampleResultRepository:
+    return BenchmarkExampleResultRepository(session)
+
+
+async def get_transactional_benchmark_example_result_repository(session: TransactionalDatabaseSession) -> BenchmarkExampleResultRepository:
+    return BenchmarkExampleResultRepository(session)
+
+
 ComplaintRepositoryDependency = Annotated[
     ComplaintRepository,
     Depends(get_complaint_repository),
@@ -217,6 +226,8 @@ BenchmarkResultRepositoryDependency = Annotated[
 TransactionalBenchmarkResultRepositoryDependency = Annotated[
     BenchmarkResultRepository, Depends(get_transactional_benchmark_result_repository)
 ]
+BenchmarkExampleResultRepositoryDependency = Annotated[BenchmarkExampleResultRepository, Depends(get_benchmark_example_result_repository)]
+TransactionalBenchmarkExampleResultRepositoryDependency = Annotated[BenchmarkExampleResultRepository, Depends(get_transactional_benchmark_example_result_repository)]
 
 
 def get_complaint_service(
@@ -262,6 +273,8 @@ def get_benchmark_service(
     benchmark_result_repository: BenchmarkResultRepositoryDependency,
     model_version_repository: ModelVersionRepositoryDependency,
     predictor_factory: BenchmarkPredictorFactoryDependency,
+    dataset_example_repository: DatasetExampleRepositoryDependency,
+    benchmark_example_result_repository: BenchmarkExampleResultRepositoryDependency,
 ) -> BenchmarkService:
     return BenchmarkService(
         dataset_version_repository=dataset_version_repository,
@@ -269,6 +282,8 @@ def get_benchmark_service(
         benchmark_result_repository=benchmark_result_repository,
         model_version_repository=model_version_repository,
         predictor_factory=predictor_factory,
+        dataset_example_repository=dataset_example_repository,
+        benchmark_example_result_repository=benchmark_example_result_repository,
     )
 
 
@@ -278,6 +293,8 @@ def get_transactional_benchmark_service(
     benchmark_result_repository: TransactionalBenchmarkResultRepositoryDependency,
     model_version_repository: TransactionalModelVersionRepositoryDependency,
     predictor_factory: BenchmarkPredictorFactoryDependency,
+    dataset_example_repository: TransactionalDatasetExampleRepositoryDependency,
+    benchmark_example_result_repository: TransactionalBenchmarkExampleResultRepositoryDependency,
 ) -> BenchmarkService:
     return BenchmarkService(
         dataset_version_repository=dataset_version_repository,
@@ -285,6 +302,8 @@ def get_transactional_benchmark_service(
         benchmark_result_repository=benchmark_result_repository,
         model_version_repository=model_version_repository,
         predictor_factory=predictor_factory,
+        dataset_example_repository=dataset_example_repository,
+        benchmark_example_result_repository=benchmark_example_result_repository,
     )
 
 

@@ -81,7 +81,7 @@ async def test_duplicate_prevents_prediction_and_completion() -> None:
 
 
 @pytest.mark.anyio
-async def test_predictor_failure_is_generic_and_marks_failed() -> None:
+async def test_predictor_failure_becomes_failed_outcome_and_continues() -> None:
     service, _, _, _, _, _, predictor = service_setup()
     predictor.predict_example.side_effect = RuntimeError("secret title credential")
     experiment = BenchmarkExperiment(id=uuid4(), dataset_version_id=uuid4(), status=BenchmarkExperimentStatus.PENDING, configuration={})
@@ -89,10 +89,10 @@ async def test_predictor_failure_is_generic_and_marks_failed() -> None:
     service._model_version_repository.get_by_id.side_effect = [
         ModelVersion(id=version.id, is_approved=True)
     ]
-    with pytest.raises(BenchmarkExecutionError) as caught: await service.run_experiment(experiment=experiment, examples=[example()], model_versions=[version])
-    assert str(caught.value) == "Benchmark execution failed."
-    assert experiment.status is BenchmarkExperimentStatus.FAILED
-    assert experiment.failure_message == "Benchmark execution failed."
+    persisted = await service.run_experiment(experiment=experiment, examples=[example()], model_versions=[version])
+    assert persisted[0].failed_prediction_count == 1
+    assert persisted[0].total_error_cost == 13
+    assert experiment.status is BenchmarkExperimentStatus.COMPLETED
 
 
 @pytest.mark.anyio
@@ -151,25 +151,25 @@ async def test_second_model_failure_leaves_prior_flush_for_caller_rollback() -> 
     second_predictor.predict_example = AsyncMock(side_effect=RuntimeError("secret"))
     factory.side_effect = [first_predictor, second_predictor]
     experiment = BenchmarkExperiment(id=uuid4(), dataset_version_id=uuid4(), status=BenchmarkExperimentStatus.PENDING, configuration={})
-    with pytest.raises(BenchmarkExecutionError):
-        await service.run_experiment(experiment=experiment, examples=[first_item], model_versions=requested)
-    assert experiment.status is BenchmarkExperimentStatus.FAILED
-    results.add.assert_awaited_once(); results.flush.assert_awaited_once()
+    persisted = await service.run_experiment(experiment=experiment, examples=[first_item], model_versions=requested)
+    assert experiment.status is BenchmarkExperimentStatus.COMPLETED
+    assert persisted[1].failed_prediction_count == 1
+    assert results.add.await_count == 2; assert results.flush.await_count == 2
     for repo in (service._dataset_version_repository, experiments, results, models):
         repo.commit.assert_not_awaited(); repo.rollback.assert_not_awaited(); repo.begin.assert_not_awaited()
 
 
 @pytest.mark.anyio
-async def test_invalid_prediction_becomes_generic_execution_failure() -> None:
+async def test_invalid_prediction_becomes_failed_outcome() -> None:
     service, _, _, _, models, _, predictor = service_setup()
     requested = ModelVersion(id=uuid4())
     models.get_by_id.side_effect = [ModelVersion(id=requested.id, is_approved=True)]
     predictor.predict_example.return_value = object()
     predictor.predict_example.side_effect = None
     experiment = BenchmarkExperiment(id=uuid4(), dataset_version_id=uuid4(), status=BenchmarkExperimentStatus.PENDING, configuration={})
-    with pytest.raises(BenchmarkExecutionError, match="Benchmark execution failed"):
-        await service.run_experiment(experiment=experiment, examples=[example()], model_versions=[requested])
-    assert experiment.status is BenchmarkExperimentStatus.FAILED
+    persisted = await service.run_experiment(experiment=experiment, examples=[example()], model_versions=[requested])
+    assert persisted[0].failed_prediction_count == 1
+    assert experiment.status is BenchmarkExperimentStatus.COMPLETED
 
 
 @pytest.mark.anyio
@@ -185,7 +185,7 @@ async def test_unapproved_authoritative_model_is_rejected_before_mutation() -> N
 
 
 @pytest.mark.anyio
-@pytest.mark.parametrize("stage", ["factory", "prediction"])
+@pytest.mark.parametrize("stage", ["factory"])
 async def test_execution_failures_are_generic(stage) -> None:
     service, _, _, _, models, factory, predictor = service_setup()
     requested = ModelVersion(id=uuid4(), is_approved=True)

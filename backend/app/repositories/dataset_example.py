@@ -37,6 +37,11 @@ class DatasetExampleRepository(BaseRepository[DatasetExample]):
         result = await self.session.execute(select(func.count()).select_from(DatasetExample).where(DatasetExample.dataset_version_id == dataset_id))
         return int(result.scalar_one())
 
+    async def list_all_for_dataset(self, dataset_version_id: UUID) -> list[DatasetExample]:
+        dataset_id = _uuid(dataset_version_id, "dataset_version_id")
+        result = await self.session.execute(select(DatasetExample).where(DatasetExample.dataset_version_id == dataset_id).order_by(DatasetExample.example_id.asc(), DatasetExample.id.asc()))
+        return list(result.scalars().all())
+
     async def example_ids_exist(self, *, dataset_version_id: UUID, example_ids: Collection[str]) -> set[str]:
         dataset_id = _uuid(dataset_version_id, "dataset_version_id")
         normalized = {normalize_required(value, "example_id") for value in example_ids}

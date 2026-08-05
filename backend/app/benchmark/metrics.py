@@ -6,9 +6,34 @@ from collections.abc import Collection, Sequence
 from uuid import UUID
 
 from app.benchmark.types import (
-    BenchmarkExample, BenchmarkMetrics, BenchmarkPrediction,
+    BenchmarkExample, BenchmarkMetrics, BenchmarkOutcome, BenchmarkPrediction,
     InvalidBenchmarkExampleError, InvalidBenchmarkPredictionError,
 )
+
+
+def calculate_benchmark_outcome(*, example: BenchmarkExample, prediction: BenchmarkPrediction | None, failure_code: str | None = None) -> BenchmarkOutcome:
+    validate_examples([example])
+    if prediction is None:
+        code = failure_code.strip() if isinstance(failure_code, str) else ""
+        if not code:
+            raise InvalidBenchmarkPredictionError("Benchmark prediction is invalid.")
+        return BenchmarkOutcome(example.example_id, None, None, None, None, None, False, False, code, False, False, False, False, 13.0)
+    validate_predictions([prediction], expected_example_ids=[example.example_id])
+    category = prediction.predicted_category_id == example.expected_category_id
+    department = prediction.predicted_department_id == example.expected_department_id
+    urgency = prediction.predicted_urgency is example.expected_urgency
+    return BenchmarkOutcome(example.example_id, prediction.predicted_category_id, prediction.predicted_department_id, prediction.predicted_urgency, float(prediction.confidence_score), prediction.latency_ms, True, True, None, category, department, urgency, category and department and urgency, (not category) * 10.0 + (not department) * 2.0 + (not urgency) * 1.0)
+
+
+def aggregate_benchmark_outcomes(outcomes: Sequence[BenchmarkOutcome]) -> BenchmarkMetrics:
+    if isinstance(outcomes, (str, bytes)) or not isinstance(outcomes, Sequence) or not outcomes:
+        raise InvalidBenchmarkPredictionError("Benchmark outcomes are invalid.")
+    values = tuple(outcomes)
+    if any(not isinstance(item, BenchmarkOutcome) or not isfinite(float(item.error_cost)) or item.error_cost < 0 or (item.latency_ms is not None and item.latency_ms < 0) or (item.confidence_score is not None and (not isfinite(float(item.confidence_score)) or not 0 <= item.confidence_score <= 1)) for item in values):
+        raise InvalidBenchmarkPredictionError("Benchmark outcomes are invalid.")
+    count = len(values); latencies = sorted(item.latency_ms for item in values if item.prediction_succeeded and item.latency_ms is not None)
+    total = sum(item.error_cost for item in values)
+    return BenchmarkMetrics(count, sum(item.category_correct for item in values), sum(item.department_correct for item in values), sum(item.urgency_correct for item in values), sum(item.exact_match for item in values), sum(item.category_correct for item in values) / count, sum(item.department_correct for item in values) / count, sum(item.urgency_correct for item in values) / count, sum(item.exact_match for item in values) / count, 0.0, total / count, sum(item.confidence_score for item in values if item.confidence_score is not None) / max(1, sum(item.confidence_score is not None for item in values)), sum(latencies) / len(latencies) if latencies else 0.0, latencies[ceil(.95 * len(latencies)) - 1] if latencies else 0, total, sum(not item.prediction_succeeded for item in values), sum(item.structured_output_valid for item in values) / count)
 from app.models import ComplaintUrgency
 
 

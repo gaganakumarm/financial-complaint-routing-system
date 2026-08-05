@@ -15,6 +15,9 @@ from app.db.base import Base
 from app.db.mixins import UUIDPrimaryKeyMixin, utc_now
 
 if TYPE_CHECKING:
+    from app.models.benchmark_comparison import BenchmarkComparison
+    from app.models.benchmark_comparison_member import BenchmarkComparisonMember
+    from app.models.benchmark_example_result import BenchmarkExampleResult
     from app.models.benchmark_experiment import BenchmarkExperiment
     from app.models.model_version import ModelVersion
 
@@ -64,6 +67,13 @@ class BenchmarkResult(UUIDPrimaryKeyMixin, Base):
     )
     per_class_metrics: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     additional_metrics: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    total_error_cost: Mapped[Decimal | None] = mapped_column(Numeric(14, 6), nullable=True)
+    exact_match_accuracy: Mapped[Decimal | None] = mapped_column(Numeric(6, 5), nullable=True)
+    failed_prediction_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    category_accuracy: Mapped[Decimal | None] = mapped_column(Numeric(6, 5), nullable=True)
+    department_accuracy: Mapped[Decimal | None] = mapped_column(Numeric(6, 5), nullable=True)
+    urgency_accuracy: Mapped[Decimal | None] = mapped_column(Numeric(6, 5), nullable=True)
+    p95_inference_latency_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=utc_now, nullable=False
     )
@@ -111,6 +121,13 @@ class BenchmarkResult(UUIDPrimaryKeyMixin, Base):
             "estimated_cost IS NULL OR estimated_cost >= 0",
             name="ck_benchmark_results_estimated_cost_non_negative",
         ),
+        CheckConstraint("total_error_cost IS NULL OR total_error_cost >= 0", name="ck_benchmark_results_total_error_cost_non_negative"),
+        CheckConstraint("failed_prediction_count IS NULL OR (failed_prediction_count >= 0 AND failed_prediction_count <= sample_count)", name="ck_benchmark_results_failed_prediction_count_range"),
+        CheckConstraint("exact_match_accuracy IS NULL OR (exact_match_accuracy >= 0 AND exact_match_accuracy <= 1)", name="ck_benchmark_results_exact_match_accuracy_range"),
+        CheckConstraint("category_accuracy IS NULL OR (category_accuracy >= 0 AND category_accuracy <= 1)", name="ck_benchmark_results_category_accuracy_range"),
+        CheckConstraint("department_accuracy IS NULL OR (department_accuracy >= 0 AND department_accuracy <= 1)", name="ck_benchmark_results_department_accuracy_range"),
+        CheckConstraint("urgency_accuracy IS NULL OR (urgency_accuracy >= 0 AND urgency_accuracy <= 1)", name="ck_benchmark_results_urgency_accuracy_range"),
+        CheckConstraint("p95_inference_latency_ms IS NULL OR p95_inference_latency_ms >= 0", name="ck_benchmark_results_p95_latency_non_negative"),
         Index(
             "uq_benchmark_results_experiment_model",
             "benchmark_experiment_id",
@@ -130,3 +147,6 @@ class BenchmarkResult(UUIDPrimaryKeyMixin, Base):
     model_version: Mapped[ModelVersion] = relationship(
         back_populates="benchmark_results"
     )
+    example_results: Mapped[list[BenchmarkExampleResult]] = relationship(back_populates="benchmark_result")
+    comparison_members: Mapped[list[BenchmarkComparisonMember]] = relationship(back_populates="benchmark_result")
+    winning_comparisons: Mapped[list[BenchmarkComparison]] = relationship(back_populates="winner_result", foreign_keys="BenchmarkComparison.winner_result_id")

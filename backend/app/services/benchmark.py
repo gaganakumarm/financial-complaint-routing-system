@@ -5,9 +5,10 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from uuid import UUID
 
-from app.benchmark.metrics import calculate_benchmark_metrics, validate_examples
+from app.benchmark.metrics import aggregate_benchmark_outcomes, calculate_benchmark_outcome, validate_examples
 from app.benchmark.types import (
     BenchmarkError,
+    BenchmarkExample,
     BenchmarkExecutionError,
     BenchmarkExperimentNotFoundError,
     BenchmarkPersistenceError,
@@ -20,11 +21,11 @@ from app.benchmark.types import (
     ModelVersionNotFoundError,
 )
 from app.models import (
-    BenchmarkExperiment, BenchmarkExperimentStatus, BenchmarkResult, ModelVersion,
+    BenchmarkExampleResult, BenchmarkExperiment, BenchmarkExperimentStatus, BenchmarkResult, ModelVersion,
 )
 from app.repositories import (
     BenchmarkExperimentRepository, BenchmarkResultRepository,
-    DatasetVersionRepository, ModelVersionRepository,
+    BenchmarkExampleResultRepository, DatasetExampleRepository, DatasetVersionRepository, ModelVersionRepository,
 )
 
 
@@ -39,12 +40,16 @@ class BenchmarkService:
         benchmark_result_repository: BenchmarkResultRepository,
         model_version_repository: ModelVersionRepository,
         predictor_factory: BenchmarkPredictorFactory,
+        dataset_example_repository: DatasetExampleRepository | None = None,
+        benchmark_example_result_repository: BenchmarkExampleResultRepository | None = None,
     ) -> None:
         self._dataset_version_repository = dataset_version_repository
         self._benchmark_experiment_repository = benchmark_experiment_repository
         self._benchmark_result_repository = benchmark_result_repository
         self._model_version_repository = model_version_repository
         self._predictor_factory = predictor_factory
+        self._dataset_example_repository = dataset_example_repository
+        self._benchmark_example_result_repository = benchmark_example_result_repository
 
     @staticmethod
     def _fail(experiment: BenchmarkExperiment) -> None:
@@ -58,7 +63,7 @@ class BenchmarkService:
         experiment.completed_at = datetime.now(timezone.utc)
         experiment.failure_message = None
 
-    async def run_experiment(self, *, experiment: BenchmarkExperiment, examples, model_versions) -> list[BenchmarkResult]:
+    async def run_experiment(self, *, experiment: BenchmarkExperiment, model_versions, examples=None) -> list[BenchmarkResult]:
         if not isinstance(experiment, BenchmarkExperiment):
             raise BenchmarkExecutionError("Benchmark experiment is invalid.")
         experiment_id = experiment.__dict__.get("id")
@@ -67,6 +72,10 @@ class BenchmarkService:
             raise BenchmarkExecutionError("Benchmark experiment is invalid.")
         if experiment.status is not BenchmarkExperimentStatus.PENDING:
             raise BenchmarkExecutionError("Benchmark experiment cannot be started.")
+        dataset_rows = None
+        if self._dataset_example_repository is not None:
+            dataset_rows = await self._dataset_example_repository.list_all_for_dataset(dataset_version_id)
+            examples = [BenchmarkExample(row.example_id, row.title, row.description, row.expected_category_id, row.expected_department_id, row.expected_urgency) for row in dataset_rows]
         checked_examples = validate_examples(examples)
         try:
             versions = tuple(model_versions)
@@ -107,13 +116,20 @@ class BenchmarkService:
             version_id = version.id
             try:
                 predictor = self._predictor_factory(version)
-                predictions = [
-                    await predictor.predict_example(example=example, model_version=version)
-                    for example in checked_examples
-                ]
-                metrics = calculate_benchmark_metrics(
-                    examples=checked_examples, predictions=predictions
-                )
+                outcomes = []
+                for example in checked_examples:
+                    try:
+                        prediction = await predictor.predict_example(example=example, model_version=version)
+                    except asyncio.CancelledError:
+                        self._cancel(experiment); raise
+                    except Exception:
+                        outcomes.append(calculate_benchmark_outcome(example=example, prediction=None, failure_code="predictor_error"))
+                    else:
+                        try:
+                            outcomes.append(calculate_benchmark_outcome(example=example, prediction=prediction))
+                        except InvalidBenchmarkPredictionError:
+                            outcomes.append(calculate_benchmark_outcome(example=example, prediction=None, failure_code="invalid_output"))
+                metrics = aggregate_benchmark_outcomes(outcomes)
             except asyncio.CancelledError:
                 self._cancel(experiment)
                 raise
@@ -129,7 +145,7 @@ class BenchmarkService:
                 macro_recall=None,
                 macro_f1=Decimal(str(metrics.macro_f1)),
                 cost_weighted_error=Decimal(str(metrics.weighted_error_cost)),
-                structured_output_validity_rate=Decimal("1"),
+                structured_output_validity_rate=Decimal(str(metrics.structured_output_validity_rate)),
                 average_inference_latency_ms=Decimal(str(metrics.average_latency_ms)),
                 # No wall-clock experiment throughput is measured.
                 throughput_per_second=None,
@@ -147,9 +163,19 @@ class BenchmarkService:
                     "average_confidence": metrics.average_confidence,
                     "p95_latency_ms": metrics.p95_latency_ms,
                 },
+                total_error_cost=Decimal(str(metrics.total_error_cost)),
+                exact_match_accuracy=Decimal(str(metrics.exact_match_accuracy)),
+                failed_prediction_count=metrics.failed_prediction_count,
+                category_accuracy=Decimal(str(metrics.category_accuracy)),
+                department_accuracy=Decimal(str(metrics.department_accuracy)),
+                urgency_accuracy=Decimal(str(metrics.urgency_accuracy)),
+                p95_inference_latency_ms=metrics.p95_latency_ms,
             )
             try:
                 await self._benchmark_result_repository.add(result)
+                if dataset_rows is not None and self._benchmark_example_result_repository is not None:
+                    for row, outcome in zip(dataset_rows, outcomes, strict=True):
+                        await self._benchmark_example_result_repository.add(BenchmarkExampleResult(benchmark_result=result, dataset_example_id=row.id, predicted_category_id=outcome.predicted_category_id, predicted_department_id=outcome.predicted_department_id, predicted_urgency=outcome.predicted_urgency, confidence=Decimal(str(outcome.confidence_score)) if outcome.confidence_score is not None else None, inference_latency_ms=outcome.latency_ms, prediction_succeeded=outcome.prediction_succeeded, structured_output_valid=outcome.structured_output_valid, failure_code=outcome.failure_code, category_correct=outcome.category_correct, department_correct=outcome.department_correct, urgency_correct=outcome.urgency_correct, exact_match=outcome.exact_match, error_cost=Decimal(str(outcome.error_cost))))
                 await self._benchmark_result_repository.flush()
                 result = await self._benchmark_result_repository.refresh(result)
             except asyncio.CancelledError:

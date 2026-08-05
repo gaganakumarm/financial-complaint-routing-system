@@ -85,6 +85,27 @@ class BenchmarkMetrics:
     average_confidence: float
     average_latency_ms: float
     p95_latency_ms: int
+    total_error_cost: float = 0.0
+    failed_prediction_count: int = 0
+    structured_output_validity_rate: float = 1.0
+
+
+@dataclass(frozen=True, slots=True)
+class BenchmarkOutcome:
+    example_id: str
+    predicted_category_id: UUID | None
+    predicted_department_id: UUID | None
+    predicted_urgency: ComplaintUrgency | None
+    confidence_score: float | None
+    latency_ms: int | None
+    prediction_succeeded: bool
+    structured_output_valid: bool
+    failure_code: str | None
+    category_correct: bool
+    department_correct: bool
+    urgency_correct: bool
+    exact_match: bool
+    error_cost: float
 
 
 @runtime_checkable

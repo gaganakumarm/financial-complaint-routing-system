@@ -35,6 +35,7 @@ EXPECTED_TABLES = {
     "benchmark_results",
     "benchmark_comparisons",
     "benchmark_comparison_members",
+    "benchmark_example_results",
 }
 
 

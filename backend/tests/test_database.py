@@ -149,6 +149,7 @@ def test_declarative_base_has_metadata() -> None:
         "benchmark_results",
         "benchmark_comparisons",
         "benchmark_comparison_members",
+        "benchmark_example_results",
     }
 
 

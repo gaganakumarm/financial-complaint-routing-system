@@ -14,6 +14,7 @@ from app.db.mixins import UUIDPrimaryKeyMixin, utc_now
 from app.models.complaint import ComplaintUrgency, complaint_urgency_enum
 
 if TYPE_CHECKING:
+    from app.models.benchmark_example_result import BenchmarkExampleResult
     from app.models.complaint_category import ComplaintCategory
     from app.models.dataset_version import DatasetVersion
     from app.models.department import Department
@@ -44,3 +45,4 @@ class DatasetExample(UUIDPrimaryKeyMixin, Base):
     dataset_version: Mapped[DatasetVersion] = relationship(back_populates="examples")
     expected_category: Mapped[ComplaintCategory] = relationship(back_populates="dataset_examples")
     expected_department: Mapped[Department] = relationship(back_populates="dataset_examples")
+    benchmark_example_results: Mapped[list[BenchmarkExampleResult]] = relationship(back_populates="dataset_example")

@@ -134,7 +134,7 @@ async def test_repository_and_service_dependencies_are_exact_and_neutral() -> No
     assert all(repository.session is session for repository in read + transactional)
     factory_one, factory_two = get_benchmark_predictor_factory(), get_benchmark_predictor_factory()
     assert factory_one is not factory_two
-    dependencies = [MagicMock() for _ in range(5)]
+    dependencies = [MagicMock() for _ in range(7)]
     assert get_benchmark_service(*dependencies) is not get_transactional_benchmark_service(*dependencies)
     assert session.mock_calls == []
 

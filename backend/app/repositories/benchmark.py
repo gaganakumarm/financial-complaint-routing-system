@@ -3,12 +3,14 @@
 from uuid import UUID
 
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import (
     BenchmarkExperiment,
     BenchmarkExperimentStatus,
     BenchmarkResult,
+    BenchmarkExampleResult,
     DatasetSplit,
     DatasetVersion,
 )
@@ -108,4 +110,21 @@ class BenchmarkResultRepository(BaseRepository[BenchmarkResult]):
             .order_by(BenchmarkResult.created_at.asc(), BenchmarkResult.id.asc())
         )
         result = await self.session.execute(statement)
+        return list(result.scalars().all())
+
+    async def get_with_outcomes(self, result_id: UUID) -> BenchmarkResult | None:
+        if not isinstance(result_id, UUID):
+            raise ValueError("result_id must be a UUID")
+        result = await self.session.execute(select(BenchmarkResult).options(selectinload(BenchmarkResult.example_results)).where(BenchmarkResult.id == result_id))
+        return result.scalar_one_or_none()
+
+
+class BenchmarkExampleResultRepository(BaseRepository[BenchmarkExampleResult]):
+    def __init__(self, session: AsyncSession) -> None:
+        super().__init__(session, BenchmarkExampleResult)
+
+    async def list_for_result(self, result_id: UUID) -> list[BenchmarkExampleResult]:
+        if not isinstance(result_id, UUID):
+            raise ValueError("result_id must be a UUID")
+        result = await self.session.execute(select(BenchmarkExampleResult).where(BenchmarkExampleResult.benchmark_result_id == result_id).order_by(BenchmarkExampleResult.created_at.asc(), BenchmarkExampleResult.id.asc()))
         return list(result.scalars().all())
