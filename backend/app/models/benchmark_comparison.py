@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from app.models.benchmark_result import BenchmarkResult
     from app.models.dataset_version import DatasetVersion
     from app.models.user import User
+    from app.models.model_promotion_decision import ModelPromotionDecision
 
 
 class BenchmarkComparison(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -44,3 +45,4 @@ class BenchmarkComparison(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     winner_result: Mapped[BenchmarkResult] = relationship(back_populates="winning_comparisons", foreign_keys=[winner_result_id])
     created_by_user: Mapped[User] = relationship(back_populates="created_benchmark_comparisons", foreign_keys=[created_by_user_id])
     members: Mapped[list[BenchmarkComparisonMember]] = relationship(back_populates="comparison")
+    model_promotion_decisions: Mapped[list[ModelPromotionDecision]] = relationship(back_populates="benchmark_comparison")

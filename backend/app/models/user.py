@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     from app.models.complaint_status_history import ComplaintStatusHistory
     from app.models.role import Role
     from app.models.review import Review
+    from app.models.model_promotion_decision import ModelPromotionDecision
 
 
 class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
@@ -90,3 +91,5 @@ class User(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     )
     reviews_performed: Mapped[list[Review]] = relationship(back_populates="reviewer")
     created_benchmark_comparisons: Mapped[list[BenchmarkComparison]] = relationship(back_populates="created_by_user", foreign_keys="BenchmarkComparison.created_by_user_id")
+    requested_model_promotions: Mapped[list[ModelPromotionDecision]] = relationship(back_populates="requested_by_user", foreign_keys="ModelPromotionDecision.requested_by_user_id")
+    reviewed_model_promotions: Mapped[list[ModelPromotionDecision]] = relationship(back_populates="reviewed_by_user", foreign_keys="ModelPromotionDecision.reviewed_by_user_id")

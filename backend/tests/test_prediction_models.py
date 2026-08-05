@@ -26,6 +26,7 @@ EXPECTED_TABLES = {
     "dataset_examples", "benchmark_experiments", "benchmark_results",
     "benchmark_comparisons", "benchmark_comparison_members",
     "benchmark_example_results",
+    "model_promotion_decisions",
 }
 
 
@@ -183,6 +184,7 @@ def test_prediction_migration_operations(monkeypatch) -> None:
     script = ScriptDirectory.from_config(Config("alembic.ini"))
     revisions = list(script.walk_revisions())
     assert [(item.revision, item.down_revision) for item in revisions] == [
+        ("20260805_09", "20260805_08"),
         ("20260805_08", "20260805_07"),
         ("20260805_07", "20260805_06"),
         ("20260805_06", "20260804_05"),
@@ -192,8 +194,8 @@ def test_prediction_migration_operations(monkeypatch) -> None:
         ("20260804_02", "20260803_01"),
         ("20260803_01", None),
     ]
-    assert script.get_heads() == ["20260805_08"]
-    module = revisions[5].module
+    assert script.get_heads() == ["20260805_09"]
+    module = revisions[6].module
     operations: list[tuple[str, str]] = []
     enum_operations: list[tuple[str, str]] = []
     monkeypatch.setattr(module.op, "get_bind", lambda: object())

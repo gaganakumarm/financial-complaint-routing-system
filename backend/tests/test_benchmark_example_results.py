@@ -95,7 +95,7 @@ async def test_service_loads_dataset_rows_and_continues_after_prediction_failure
 
 def test_migration_and_api_schema_regression() -> None:
     script = ScriptDirectory.from_config(Config("alembic.ini")); revision = script.get_revision("20260805_08")
-    assert revision.down_revision == "20260805_07" and script.get_heads() == ["20260805_08"]
+    assert revision.down_revision == "20260805_07" and script.get_heads() == ["20260805_09"]
     schema = create_app(Settings()).openapi(); properties = schema["components"]["schemas"]["BenchmarkResultResponse"]["properties"]
     assert {"total_error_cost", "exact_match_accuracy", "failed_prediction_count", "category_accuracy", "department_accuracy", "urgency_accuracy", "p95_inference_latency_ms"} <= set(properties)
     assert not any("execute" in path for path in schema["paths"] if "benchmark" in path)

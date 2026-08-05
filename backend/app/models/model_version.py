@@ -26,6 +26,7 @@ from app.db.mixins import UUIDPrimaryKeyMixin, utc_now
 if TYPE_CHECKING:
     from app.models.benchmark_result import BenchmarkResult
     from app.models.prediction import Prediction
+    from app.models.model_promotion_decision import ModelPromotionDecision
 
 
 class ModelType(StrEnum):
@@ -119,4 +120,7 @@ class ModelVersion(UUIDPrimaryKeyMixin, Base):
     )
     benchmark_results: Mapped[list[BenchmarkResult]] = relationship(
         back_populates="model_version"
+    )
+    model_promotion_decisions: Mapped[list[ModelPromotionDecision]] = relationship(
+        back_populates="selected_model_version"
     )
