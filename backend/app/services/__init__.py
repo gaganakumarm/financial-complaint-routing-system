@@ -60,6 +60,24 @@ from app.services.dataset import (
     InvalidDatasetVersionError,
 )
 from app.services.dataset_example import DatasetExampleAlreadyExistsError, DatasetExampleInput, DatasetExampleNotFoundError, DatasetExamplePersistenceError, DatasetExampleReferenceError, DatasetExampleService, DatasetExampleServiceError, DatasetVersionNotFoundForExampleError, InvalidDatasetExampleError
+from app.services.benchmark_comparison import (
+    BenchmarkComparisonInput,
+    BenchmarkComparisonNotFoundError,
+    BenchmarkComparisonPersistenceError,
+    BenchmarkComparisonService,
+    BenchmarkComparisonServiceError,
+    BenchmarkResultNotFoundForComparisonError,
+    IncompleteBenchmarkResultError,
+    IncompatibleBenchmarkDatasetError,
+    InvalidBenchmarkComparisonError,
+    MissingBenchmarkMetricsError,
+)
+from app.services.benchmark_ranking import (
+    BenchmarkRankingError,
+    BenchmarkRankingInput,
+    RankedBenchmarkResult,
+    rank_benchmark_results,
+)
 
 __all__ = [
     "AuthenticationError",
@@ -118,4 +136,18 @@ __all__ = [
     "DatasetExampleReferenceError",
     "DatasetVersionNotFoundForExampleError",
     "InvalidDatasetExampleError",
+    "BenchmarkComparisonInput",
+    "BenchmarkComparisonNotFoundError",
+    "BenchmarkComparisonPersistenceError",
+    "BenchmarkComparisonService",
+    "BenchmarkComparisonServiceError",
+    "BenchmarkResultNotFoundForComparisonError",
+    "IncompleteBenchmarkResultError",
+    "IncompatibleBenchmarkDatasetError",
+    "InvalidBenchmarkComparisonError",
+    "MissingBenchmarkMetricsError",
+    "BenchmarkRankingError",
+    "BenchmarkRankingInput",
+    "RankedBenchmarkResult",
+    "rank_benchmark_results",
 ]

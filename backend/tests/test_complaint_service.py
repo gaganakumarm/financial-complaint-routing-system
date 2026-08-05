@@ -144,6 +144,22 @@ def test_service_imports_exports_and_resource_isolation() -> None:
         "InvalidBenchmarkPredictionError",
         "ModelVersionNotFoundError",
     }
+    expected_benchmark_exports |= {
+        "BenchmarkComparisonInput",
+        "BenchmarkComparisonNotFoundError",
+        "BenchmarkComparisonPersistenceError",
+        "BenchmarkComparisonService",
+        "BenchmarkComparisonServiceError",
+        "BenchmarkResultNotFoundForComparisonError",
+        "IncompleteBenchmarkResultError",
+        "IncompatibleBenchmarkDatasetError",
+        "InvalidBenchmarkComparisonError",
+        "MissingBenchmarkMetricsError",
+        "BenchmarkRankingError",
+        "BenchmarkRankingInput",
+        "RankedBenchmarkResult",
+        "rank_benchmark_results",
+    }
     expected_dataset_exports = {
         "DatasetService",
         "DatasetServiceError",

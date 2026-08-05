@@ -8,6 +8,7 @@ from app.repositories.benchmark import (
     DatasetVersionRepository,
 )
 from app.repositories.complaint import ComplaintRepository
+from app.repositories.benchmark_comparison import BenchmarkComparisonRepository
 from app.repositories.complaint_category import ComplaintCategoryRepository
 from app.repositories.dataset_example import DatasetExampleRepository
 from app.repositories.department import DepartmentRepository
@@ -21,6 +22,7 @@ __all__ = [
     "BenchmarkExperimentRepository",
     "BenchmarkResultRepository",
     "BenchmarkExampleResultRepository",
+    "BenchmarkComparisonRepository",
     "ComplaintRepository",
     "ComplaintCategoryRepository",
     "DatasetExampleRepository",

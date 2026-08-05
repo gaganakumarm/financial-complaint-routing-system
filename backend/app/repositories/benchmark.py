@@ -1,5 +1,6 @@
 """Dataset and benchmark repositories."""
 
+from collections.abc import Collection
 from uuid import UUID
 
 from sqlalchemy import select
@@ -117,6 +118,32 @@ class BenchmarkResultRepository(BaseRepository[BenchmarkResult]):
             raise ValueError("result_id must be a UUID")
         result = await self.session.execute(select(BenchmarkResult).options(selectinload(BenchmarkResult.example_results)).where(BenchmarkResult.id == result_id))
         return result.scalar_one_or_none()
+
+    async def get_results_by_ids(
+        self, benchmark_result_ids: Collection[UUID]
+    ) -> list[BenchmarkResult]:
+        if isinstance(benchmark_result_ids, (str, bytes)) or not isinstance(
+            benchmark_result_ids, Collection
+        ):
+            raise ValueError("benchmark_result_ids must be a collection of UUIDs")
+        if any(not isinstance(identifier, UUID) for identifier in benchmark_result_ids):
+            raise ValueError("benchmark_result_ids must contain only UUIDs")
+        identifiers = set(benchmark_result_ids)
+        if not identifiers:
+            return []
+        statement = (
+            select(BenchmarkResult)
+            .options(
+                selectinload(BenchmarkResult.experiment).selectinload(
+                    BenchmarkExperiment.dataset_version
+                ),
+                selectinload(BenchmarkResult.model_version),
+            )
+            .where(BenchmarkResult.id.in_(identifiers))
+            .order_by(BenchmarkResult.id.asc())
+        )
+        result = await self.session.execute(statement)
+        return list(result.scalars().all())
 
 
 class BenchmarkExampleResultRepository(BaseRepository[BenchmarkExampleResult]):
