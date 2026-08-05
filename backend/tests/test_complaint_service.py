@@ -121,11 +121,24 @@ def test_service_imports_exports_and_resource_isolation() -> None:
         "PredictionService",
         "PredictionServiceError",
     }
+    expected_review_exports = {
+        "DuplicateReviewError",
+        "InvalidReviewDataError",
+        "PredictionForReviewNotFoundError",
+        "ReviewAccessDeniedError",
+        "ReviewNotAllowedError",
+        "ReviewNotFoundError",
+        "ReviewService",
+        "ReviewServiceError",
+    }
     engine_cache_before = get_engine.cache_info()
     session_cache_before = get_session_factory.cache_info()
 
     assert set(services.__all__) == (
-        expected_auth_exports | expected_complaint_exports | expected_prediction_exports
+        expected_auth_exports
+        | expected_complaint_exports
+        | expected_prediction_exports
+        | expected_review_exports
     )
     assert issubclass(ComplaintServiceError, Exception)
     assert issubclass(AuthenticationError, Exception)

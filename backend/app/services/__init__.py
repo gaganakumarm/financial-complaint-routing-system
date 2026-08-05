@@ -29,6 +29,16 @@ from app.services.prediction import (
     PredictionService,
     PredictionServiceError,
 )
+from app.services.review import (
+    DuplicateReviewError,
+    InvalidReviewDataError,
+    PredictionForReviewNotFoundError,
+    ReviewAccessDeniedError,
+    ReviewNotAllowedError,
+    ReviewNotFoundError,
+    ReviewService,
+    ReviewServiceError,
+)
 
 __all__ = [
     "AuthenticationError",
@@ -54,4 +64,12 @@ __all__ = [
     "PredictionNotFoundError",
     "PredictionService",
     "PredictionServiceError",
+    "DuplicateReviewError",
+    "InvalidReviewDataError",
+    "PredictionForReviewNotFoundError",
+    "ReviewAccessDeniedError",
+    "ReviewNotAllowedError",
+    "ReviewNotFoundError",
+    "ReviewService",
+    "ReviewServiceError",
 ]
