@@ -2,9 +2,11 @@
 
 from enum import StrEnum
 from functools import lru_cache
+from typing import Annotated
+from urllib.parse import urlsplit
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class AppEnvironment(StrEnum):
@@ -30,6 +32,13 @@ class Settings(BaseSettings):
     app_env: AppEnvironment = AppEnvironment.DEVELOPMENT
     debug: bool = False
     api_prefix: str = "/api"
+    cors_allowed_origins: Annotated[list[str], NoDecode] = Field(
+        default_factory=lambda: [
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+        ],
+        validation_alias="CORS_ALLOWED_ORIGINS",
+    )
     database_url: str = Field(
         default=(
             "postgresql+asyncpg://postgres:postgres@localhost:5432/"
@@ -64,6 +73,46 @@ class Settings(BaseSettings):
         if value != "/" and value.endswith("/"):
             raise ValueError('API prefix cannot end with "/" unless it is exactly "/"')
         return value
+
+    @field_validator("cors_allowed_origins", mode="before")
+    @classmethod
+    def parse_cors_allowed_origins(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.split(",")
+        return value
+
+    @field_validator("cors_allowed_origins")
+    @classmethod
+    def validate_cors_allowed_origins(cls, values: list[str]) -> list[str]:
+        normalized_origins: list[str] = []
+        for value in values:
+            origin = value.strip().rstrip("/")
+            if not origin:
+                raise ValueError("CORS origins cannot contain blank items")
+            if origin == "*":
+                raise ValueError("wildcard CORS origins are not supported")
+
+            parsed = urlsplit(origin)
+            try:
+                parsed.port
+            except ValueError:
+                raise ValueError("CORS origins must contain a valid port") from None
+            if (
+                parsed.scheme not in {"http", "https"}
+                or not parsed.hostname
+                or parsed.username is not None
+                or parsed.password is not None
+                or parsed.path
+                or parsed.query
+                or parsed.fragment
+            ):
+                raise ValueError("CORS origins must be valid HTTP or HTTPS origins")
+            if origin not in normalized_origins:
+                normalized_origins.append(origin)
+
+        if not normalized_origins:
+            raise ValueError("at least one CORS origin is required")
+        return normalized_origins
 
     @field_validator("database_url")
     @classmethod
