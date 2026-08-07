@@ -21,7 +21,7 @@ from app.core.config import Settings
 from app.db.engine import get_engine
 from app.db.session import get_session_factory
 from app.main import create_app
-from app.models import User
+from app.models import Role, User
 from app.schemas import (
     ErrorResponse,
     LoginRequest,
@@ -90,11 +90,12 @@ SCHEMA_EXPORTS = {
 }
 
 
-def _user() -> User:
+def _user(role_name: str = "customer") -> User:
     now = datetime.now(timezone.utc)
+    role_id = uuid4()
     return User(
         id=uuid4(),
-        role_id=uuid4(),
+        role_id=role_id,
         email="user@example.com",
         password_hash="never-expose-this-hash",
         full_name="Example User",
@@ -102,6 +103,12 @@ def _user() -> User:
         email_verified=False,
         created_at=now,
         updated_at=now,
+        role=Role(
+            id=role_id,
+            name=role_name,
+            display_name=role_name.title(),
+            is_active=True,
+        ),
     )
 
 
@@ -199,6 +206,7 @@ def test_user_response_from_orm_excludes_password_hash() -> None:
     assert set(serialized) == {
         "id",
         "role_id",
+        "role_name",
         "email",
         "full_name",
         "is_active",
@@ -206,6 +214,7 @@ def test_user_response_from_orm_excludes_password_hash() -> None:
         "created_at",
         "updated_at",
     }
+    assert serialized["role_name"] == "customer"
 
 
 @pytest.mark.anyio
@@ -366,8 +375,11 @@ async def test_password_is_not_logged_or_echoed(
 
 
 @pytest.mark.anyio
-async def test_current_user_returns_safe_profile_from_dependency() -> None:
-    user = _user()
+@pytest.mark.parametrize("role_name", ["customer", "reviewer", "administrator"])
+async def test_current_user_returns_safe_profile_from_dependency(
+    role_name: str,
+) -> None:
+    user = _user(role_name)
     application = create_app(Settings())
     application.dependency_overrides[get_current_active_user] = lambda: user
     transport = httpx.ASGITransport(app=application)
@@ -377,6 +389,8 @@ async def test_current_user_returns_safe_profile_from_dependency() -> None:
 
     assert response.status_code == 200
     assert response.json()["id"] == str(user.id)
+    assert response.json()["role_id"] == str(user.role_id)
+    assert response.json()["role_name"] == role_name
     assert "password_hash" not in response.text
 
 
@@ -443,6 +457,7 @@ def test_openapi_auth_paths_schemas_and_security() -> None:
         "flows"
     ]["password"]["tokenUrl"] == "/api/auth/login"
     user_properties = schema["components"]["schemas"]["UserResponse"]["properties"]
+    assert user_properties["role_name"]["type"] == "string"
     assert "password_hash" not in user_properties
     assert schema["paths"]["/api/auth/login"]["post"]["tags"] == ["Authentication"]
 

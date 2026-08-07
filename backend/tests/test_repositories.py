@@ -111,6 +111,19 @@ async def test_user_repository_get_by_id_eager_loads_role_and_handles_missing() 
 
 
 @pytest.mark.anyio
+async def test_user_repository_refresh_loads_role_without_transaction_control() -> None:
+    session, _ = make_session()
+    user = MagicMock(spec=User)
+
+    assert await UserRepository(session).refresh(user) is user
+
+    session.refresh.assert_awaited_once_with(user, attribute_names=["role"])
+    assert not session.commit.called
+    assert not session.rollback.called
+    assert not session.begin.called
+
+
+@pytest.mark.anyio
 async def test_user_repository_email_queries_are_trimmed_and_case_insensitive() -> None:
     session, result = make_session(scalar="user", scalar_one=True)
     repository = UserRepository(session)

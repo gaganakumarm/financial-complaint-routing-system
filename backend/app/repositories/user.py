@@ -33,6 +33,11 @@ class UserRepository(BaseRepository[User]):
         result = await self.session.execute(statement)
         return result.scalar_one_or_none()
 
+    async def refresh(self, entity: User) -> User:
+        """Refresh a user together with the role required by response schemas."""
+        await self.session.refresh(entity, attribute_names=["role"])
+        return entity
+
     async def email_exists(self, email: str) -> bool:
         normalized = normalize_required(email, "email")
         statement = select(

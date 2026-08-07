@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import AliasPath, BaseModel, ConfigDict, Field, field_validator
 
 
 class RegisterRequest(BaseModel):
@@ -28,6 +28,7 @@ class UserResponse(BaseModel):
 
     id: UUID
     role_id: UUID
+    role_name: str = Field(validation_alias=AliasPath("role", "name"))
     email: str
     full_name: str
     is_active: bool

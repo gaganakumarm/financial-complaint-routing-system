@@ -22,7 +22,7 @@ from app.api import (
 from app.db.session import get_db_session, get_transactional_session
 from app.core.config import Settings
 from app.main import create_app
-from app.models import User
+from app.models import Role, User
 from app.repositories import UserRepository
 from app.services import AuthService, DuplicateEmailError
 
@@ -214,9 +214,10 @@ async def test_fastapi_http_exception_is_unchanged_after_rollback(monkeypatch) -
 
 def _registration_user() -> User:
     now = datetime.now(timezone.utc)
+    role_id = uuid4()
     return User(
         id=uuid4(),
-        role_id=uuid4(),
+        role_id=role_id,
         email="user@example.com",
         password_hash="not-returned",
         full_name="Example User",
@@ -224,6 +225,12 @@ def _registration_user() -> User:
         email_verified=False,
         created_at=now,
         updated_at=now,
+        role=Role(
+            id=role_id,
+            name="customer",
+            display_name="Customer",
+            is_active=True,
+        ),
     )
 
 
