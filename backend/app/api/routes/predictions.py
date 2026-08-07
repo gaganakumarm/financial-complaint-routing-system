@@ -18,6 +18,7 @@ from app.schemas import (
     PredictionRunRequest,
     PredictionRunResponse,
 )
+from app.schemas.prediction import ReviewerPredictionResponse
 from app.services import (
     ActiveModelVersionNotFoundError,
     ComplaintAccessDeniedError,
@@ -101,22 +102,22 @@ async def list_complaint_predictions(
         limit=limit,
     )
     return PredictionListResponse(
-        items=[PredictionResponse.model_validate(item) for item in predictions],
+        items=[ReviewerPredictionResponse.model_validate(item) for item in predictions],
         offset=offset,
         limit=limit,
         count=len(predictions),
     )
 
 
-@router.get("/{prediction_id}", response_model=PredictionResponse)
+@router.get("/{prediction_id}", response_model=ReviewerPredictionResponse)
 async def get_prediction(
     prediction_id: UUID,
     current_user: ReviewerOrAdministratorUser,
     prediction_service: PredictionServiceDependency,
-) -> PredictionResponse:
+) -> ReviewerPredictionResponse:
     del current_user
     try:
         prediction = await prediction_service.get_prediction(prediction_id)
     except PredictionNotFoundError:
         raise HTTPException(status_code=404, detail="Prediction not found") from None
-    return PredictionResponse.model_validate(prediction)
+    return ReviewerPredictionResponse.model_validate(prediction)

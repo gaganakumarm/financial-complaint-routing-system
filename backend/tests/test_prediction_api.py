@@ -22,7 +22,17 @@ from app.api.routes.predictions import (
 )
 from app.core.config import Settings
 from app.main import create_app
-from app.models import Complaint, ComplaintStatus, ComplaintUrgency, ModelType, Prediction, User
+from app.models import (
+    Complaint,
+    ComplaintCategory,
+    ComplaintStatus,
+    ComplaintUrgency,
+    Department,
+    ModelType,
+    ModelVersion,
+    Prediction,
+    User,
+)
 from app.prediction import ComplaintPredictor
 from app.repositories import ModelVersionRepository
 from app.schemas import PredictionRunRequest
@@ -37,13 +47,25 @@ from app.services import (
 
 
 def prediction() -> Prediction:
+    model_version = ModelVersion(
+        id=uuid4(), name="Router", version="v1", model_type=ModelType.TFIDF_CLASSIFIER
+    )
+    category = ComplaintCategory(
+        id=uuid4(), code="card", display_name="Card dispute", is_active=True
+    )
+    department = Department(
+        id=uuid4(), code="cards", display_name="Cards", is_active=True
+    )
     return Prediction(
-        id=uuid4(), complaint_id=uuid4(), model_version_id=uuid4(),
-        predicted_category_id=uuid4(), predicted_department_id=uuid4(),
+        id=uuid4(), complaint_id=uuid4(), model_version_id=model_version.id,
+        predicted_category_id=category.id, predicted_department_id=department.id,
         predicted_urgency=ComplaintUrgency.HIGH,
         confidence_score=Decimal("0.82000"), output_valid=True,
         failure_code=None, failure_message="hidden", raw_output={"hidden": True},
         inference_latency_ms=None, created_at=datetime.now(timezone.utc),
+        model_version=model_version,
+        predicted_category=category,
+        predicted_department=department,
     )
 
 
@@ -104,6 +126,12 @@ async def test_read_routes_return_safe_fields_and_pagination() -> None:
     listed = await list_complaint_predictions(item.complaint_id, user, service, 3, 7)
     assert (listed.offset, listed.limit, listed.count) == (3, 7, 1)
     assert "raw_output" not in listed.items[0].model_dump()
+    assert listed.items[0].category.name == "Card dispute"
+    assert listed.items[0].department.name == "Cards"
+    assert listed.items[0].model_version.name == "Router"
+    assert listed.items[0].predicted_category_id == item.predicted_category_id
+    assert listed.items[0].predicted_department_id == item.predicted_department_id
+    assert listed.items[0].model_version_id == item.model_version_id
     service.list_complaint_predictions.assert_awaited_once_with(
         complaint_id=item.complaint_id, offset=3, limit=7
     )
@@ -136,5 +164,7 @@ def test_openapi_contract_has_safe_prediction_surface() -> None:
     assert "get" in paths["/api/predictions/{prediction_id}"]
     properties = schema["components"]["schemas"]["PredictionResponse"]["properties"]
     assert "raw_output" not in properties and "failure_message" not in properties
+    reviewer_properties = schema["components"]["schemas"]["ReviewerPredictionResponse"]["properties"]
+    assert {"category", "department", "model_version"} <= set(reviewer_properties)
     assert not any("upload" in path for path in paths)
     assert not any("run" in path for path in paths if "benchmark" in path)

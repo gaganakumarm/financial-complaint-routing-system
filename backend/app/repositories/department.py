@@ -14,6 +14,14 @@ class DepartmentRepository(BaseRepository[Department]):
     def __init__(self, session: AsyncSession) -> None:
         super().__init__(session, Department)
 
+    async def list_active(self) -> list[Department]:
+        result = await self.session.execute(
+            select(Department)
+            .where(Department.is_active.is_(True))
+            .order_by(Department.display_name.asc(), Department.id.asc())
+        )
+        return list(result.scalars().all())
+
     async def get_by_ids(self, entity_ids: Collection[UUID]) -> dict[UUID, Department]:
         identifiers = set(entity_ids)
         if any(not isinstance(identifier, UUID) for identifier in identifiers):

@@ -4,7 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.models import ComplaintStatus, ComplaintUrgency, ModelType
 
@@ -12,6 +12,25 @@ from app.models import ComplaintStatus, ComplaintUrgency, ModelType
 class PredictionRunRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     model_type: ModelType | None = None
+
+
+class PredictionCategorySummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    id: UUID
+    name: str = Field(validation_alias="display_name")
+
+
+class PredictionDepartmentSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    id: UUID
+    name: str = Field(validation_alias="display_name")
+
+
+class PredictionModelVersionSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True, extra="forbid")
+    id: UUID
+    name: str
+    version: str
 
 
 class PredictionResponse(BaseModel):
@@ -29,6 +48,16 @@ class PredictionResponse(BaseModel):
     created_at: datetime
 
 
+class ReviewerPredictionResponse(PredictionResponse):
+    model_version: PredictionModelVersionSummary
+    category: PredictionCategorySummary | None = Field(
+        validation_alias="predicted_category"
+    )
+    department: PredictionDepartmentSummary | None = Field(
+        validation_alias="predicted_department"
+    )
+
+
 class PredictionRunResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     prediction: PredictionResponse
@@ -37,7 +66,7 @@ class PredictionRunResponse(BaseModel):
 
 class PredictionListResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    items: list[PredictionResponse]
+    items: list[ReviewerPredictionResponse]
     offset: int
     limit: int
     count: int

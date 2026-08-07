@@ -492,13 +492,16 @@ def test_authorization_import_has_no_side_effects_or_production_routes() -> None
         "/api/predictions/complaints/{complaint_id}/run",
         "/api/predictions/complaints/{complaint_id}",
         "/api/predictions/{prediction_id}",
-        "/api/reviews/queue",
-        "/api/reviews/{review_id}",
-        "/api/reviews/complaints/{complaint_id}/claim",
+            "/api/reviews/queue",
+            "/api/reviews/{review_id}",
+            "/api/reviews/complaints/{complaint_id}",
+            "/api/reviews/complaints/{complaint_id}/claim",
         "/api/reviews/complaints/{complaint_id}/approve",
         "/api/reviews/complaints/{complaint_id}/correct",
-        "/api/reviews/complaints/{complaint_id}/reject",
-    }
+            "/api/reviews/complaints/{complaint_id}/reject",
+            "/api/reference/complaint-categories",
+            "/api/reference/departments",
+        }
     assert not any(
         isinstance(value, (UserRepository, AuthService))
         for value in vars(dependencies).values()

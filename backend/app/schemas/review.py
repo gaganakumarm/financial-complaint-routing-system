@@ -28,6 +28,19 @@ class ReviewQueueResponse(_ReviewSchema):
     count: int
 
 
+class ReviewerComplaintResponse(_ReviewSchema):
+    id: UUID
+    reference_number: str
+    title: str
+    description: str
+    status: ComplaintStatus = Field(validation_alias="current_status")
+    final_category_id: UUID | None
+    final_department_id: UUID | None
+    final_urgency: ComplaintUrgency | None
+    created_at: datetime
+    updated_at: datetime
+
+
 class ReviewClaimResponse(_ReviewSchema):
     complaint_id: UUID
     current_status: ComplaintStatus

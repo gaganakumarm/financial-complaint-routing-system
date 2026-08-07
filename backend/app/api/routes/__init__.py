@@ -10,6 +10,7 @@ from app.api.routes.predictions import router as predictions_router
 from app.api.routes.reviews import router as reviews_router
 from app.api.routes.model_promotions import router as model_promotions_router
 from app.api.routes.deployment_candidates import router as deployment_candidates_router
+from app.api.routes.reference import router as reference_router
 
 __all__ = [
     "auth_router",
@@ -22,4 +23,5 @@ __all__ = [
     "reviews_router",
     "model_promotions_router",
     "deployment_candidates_router",
+    "reference_router",
 ]

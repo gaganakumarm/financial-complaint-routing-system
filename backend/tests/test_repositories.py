@@ -27,6 +27,8 @@ from app.repositories import (
     PredictionRepository,
     ReviewRepository,
     UserRepository,
+    ComplaintCategoryRepository,
+    DepartmentRepository,
 )
 
 
@@ -251,13 +253,37 @@ async def test_prediction_repository_queries() -> None:
         "prediction"
     ]
     statement = session.execute.await_args.args[0]
+    assert len(statement._with_options) == 3
     _assert_page(statement, 1, 9)
     _assert_order(statement, "predictions.created_at DESC", "predictions.id DESC")
     assert await repository.get_latest_for_complaint(complaint_id) == "prediction"
     latest = session.execute.await_args.args[0]
+    assert len(latest._with_options) == 3
     assert latest._limit_clause.value == 1
     _assert_order(latest, "predictions.created_at DESC", "predictions.id DESC")
     result.scalar_one_or_none.assert_called_once()
+
+    assert await repository.get_by_id(uuid4()) == "prediction"
+    assert len(session.execute.await_args.args[0]._with_options) == 3
+
+
+@pytest.mark.anyio
+async def test_active_reference_repositories_are_filtered_and_ordered() -> None:
+    category_session, _ = make_session(rows=[])
+    department_session, _ = make_session(rows=[])
+    await ComplaintCategoryRepository(category_session).list_active()
+    await DepartmentRepository(department_session).list_active()
+
+    category_statement = category_session.execute.await_args.args[0]
+    department_statement = department_session.execute.await_args.args[0]
+    assert "complaint_categories.is_active IS true" in str(category_statement)
+    assert "departments.is_active IS true" in str(department_statement)
+    _assert_order(category_statement, "complaint_categories.display_name ASC", "complaint_categories.id ASC")
+    _assert_order(department_statement, "departments.display_name ASC", "departments.id ASC")
+    for session in (category_session, department_session):
+        assert not session.commit.called
+        assert not session.rollback.called
+        assert not session.begin.called
 
 
 @pytest.mark.anyio

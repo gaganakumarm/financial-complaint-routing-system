@@ -5,6 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Query, status
 
 from app.api.dependencies import (
+    ComplaintServiceDependency,
     ComplaintRepositoryDependency,
     PredictionRepositoryDependency,
     ReviewServiceDependency,
@@ -22,6 +23,8 @@ from app.schemas import (
     ReviewQueueResponse,
     ReviewResponse,
 )
+from app.schemas.review import ReviewerComplaintResponse
+from app.services import ComplaintNotFoundError
 from app.services import (
     DuplicateReviewError,
     InvalidReviewDataError,
@@ -37,6 +40,26 @@ router = APIRouter(prefix="/reviews", tags=["Human Review"])
 
 def _forbidden() -> HTTPException:
     return HTTPException(status.HTTP_403_FORBIDDEN, "Not enough permissions")
+
+
+@router.get(
+    "/complaints/{complaint_id}",
+    response_model=ReviewerComplaintResponse,
+)
+async def get_reviewer_complaint(
+    complaint_id: UUID,
+    current_user: ReviewerOrAdministratorUser,
+    complaint_service: ComplaintServiceDependency,
+) -> ReviewerComplaintResponse:
+    del current_user
+    try:
+        complaint = await complaint_service.get_complaint(complaint_id)
+    except ComplaintNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Complaint not found",
+        ) from None
+    return ReviewerComplaintResponse.model_validate(complaint)
 
 
 async def _resolve_target(
