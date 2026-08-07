@@ -5,7 +5,7 @@ export interface NavigationItem { label: string; path: string }
 const navigation: Record<RoleName, NavigationItem[]> = {
   customer: [
     { label: "Dashboard", path: "/" },
-    { label: "My Complaints", path: "/my-complaints" },
+    { label: "My Complaints", path: "/complaints" },
   ],
   reviewer: [
     { label: "Dashboard", path: "/" },

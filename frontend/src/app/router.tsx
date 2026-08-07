@@ -7,6 +7,9 @@ import type { RoleName } from "../features/auth/types";
 import { DashboardPage } from "../pages/DashboardPage";
 import { LoginPage } from "../pages/LoginPage";
 import { PlaceholderPage } from "../pages/PlaceholderPage";
+import { ComplaintDetailPage } from "../features/complaints/pages/ComplaintDetailPage";
+import { CreateComplaintPage } from "../features/complaints/pages/CreateComplaintPage";
+import { ComplaintsIndexPage } from "../features/complaints/pages/ComplaintsIndexPage";
 
 const guarded = (roles: readonly RoleName[], title: string) => <RoleGuard roles={roles}><PlaceholderPage title={title} /></RoleGuard>;
 
@@ -14,9 +17,10 @@ export const router = createBrowserRouter([
   { path: "/login", element: <LoginPage /> },
   { element: <ProtectedRoute />, children: [{ element: <AppShell />, children: [
     { index: true, element: <DashboardPage /> },
-    { path: "my-complaints", element: guarded(["customer"], "My Complaints") },
+    { path: "complaints/new", element: <RoleGuard roles={["customer"]}><CreateComplaintPage /></RoleGuard> },
+    { path: "complaints/:complaintId", element: <RoleGuard roles={["customer"]}><ComplaintDetailPage /></RoleGuard> },
+    { path: "complaints", element: <ComplaintsIndexPage /> },
     { path: "review-queue", element: guarded(["reviewer"], "Review Queue") },
-    { path: "complaints", element: guarded(["reviewer"], "Complaints") },
     { path: "datasets", element: guarded(["administrator"], "Datasets") },
     { path: "benchmarks", element: guarded(["administrator"], "Benchmarks") },
     { path: "comparisons", element: guarded(["administrator"], "Comparisons") },

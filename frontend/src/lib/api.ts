@@ -31,3 +31,7 @@ export function getApiErrorMessage(error: unknown, fallback = "Something went wr
   const detail = (error.response?.data as { detail?: unknown } | undefined)?.detail;
   return typeof detail === "string" && detail.trim() ? detail : fallback;
 }
+
+export function getApiStatus(error: unknown): number | undefined {
+  return error instanceof AxiosError ? error.response?.status : undefined;
+}
