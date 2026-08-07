@@ -10,6 +10,7 @@ import { PlaceholderPage } from "../pages/PlaceholderPage";
 import { ComplaintDetailPage } from "../features/complaints/pages/ComplaintDetailPage";
 import { CreateComplaintPage } from "../features/complaints/pages/CreateComplaintPage";
 import { ComplaintsIndexPage } from "../features/complaints/pages/ComplaintsIndexPage";
+import { ReviewQueuePage } from "../features/reviews/pages/ReviewQueuePage";
 
 const guarded = (roles: readonly RoleName[], title: string) => <RoleGuard roles={roles}><PlaceholderPage title={title} /></RoleGuard>;
 
@@ -20,7 +21,8 @@ export const router = createBrowserRouter([
     { path: "complaints/new", element: <RoleGuard roles={["customer"]}><CreateComplaintPage /></RoleGuard> },
     { path: "complaints/:complaintId", element: <RoleGuard roles={["customer"]}><ComplaintDetailPage /></RoleGuard> },
     { path: "complaints", element: <ComplaintsIndexPage /> },
-    { path: "review-queue", element: guarded(["reviewer"], "Review Queue") },
+    { path: "review-queue", element: <RoleGuard roles={["reviewer", "administrator"]}><ReviewQueuePage /></RoleGuard> },
+    { path: "review-queue/:complaintId", element: guarded(["reviewer", "administrator"], "Review Detail") },
     { path: "datasets", element: guarded(["administrator"], "Datasets") },
     { path: "benchmarks", element: guarded(["administrator"], "Benchmarks") },
     { path: "comparisons", element: guarded(["administrator"], "Comparisons") },

@@ -14,6 +14,7 @@ const navigation: Record<RoleName, NavigationItem[]> = {
   ],
   administrator: [
     { label: "Dashboard", path: "/" },
+    { label: "Review Queue", path: "/review-queue" },
     { label: "Datasets", path: "/datasets" },
     { label: "Benchmarks", path: "/benchmarks" },
     { label: "Comparisons", path: "/comparisons" },
